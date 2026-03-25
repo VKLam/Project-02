@@ -1,6 +1,6 @@
 ---
 title: 'Project 2: Modelling daily cycling demand in Edinburgh'
-author: 'Group members: [Karthik Sutheeshkumar], [Kiet Lam], [Name3]'
+author: 'Group members: [Karthik Sutheeshkumar], [Kiet Lam], [Leon]'
 date: 'Word count: [XXX words]'
 output:
   pdf_document:
@@ -26,6 +26,7 @@ source("code.R") # Runs all models and creates tables/plots in the background
 ```
 
 # Introduction
+
 
 <!--
 Required content (remove before submission):
