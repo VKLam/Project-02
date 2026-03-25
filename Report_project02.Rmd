@@ -1,11 +1,7 @@
 ---
 title: 'Project 2: Modelling daily cycling demand in Edinburgh'
-<<<<<<< HEAD
-author: 'Group members: [Karthik Sutheeshkumar], [Kiet Lam], [Name3]'
-date: 'Word count: [0 words]'
-=======
 author: 'Group members: [Karthik Sutheeshkumar], [Kiet Lam], [Leon]'
-date: 'Word count: [XXX words]'
+date: 'Word count: [0 words]'
 >>>>>>> 89f34574f93654fe1ed0bfe3b6438f8c68050e91
 output:
   pdf_document:
