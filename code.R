@@ -59,7 +59,7 @@ calc_scores <- function(y, mu, sigma, alpha = 0.05) {
   
   RMSE <- sqrt(mean((y-mu)^2))
   MAE <- mean(abs(y-mu))
-  DS <- (y-mu)^2/sigmaˆ2 + 2 * log(sigma)
+  DS <- (y-mu)^2/sigma^2 + 2 * log(sigma)
 
 }
 
