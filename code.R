@@ -1,7 +1,7 @@
 
 # ============================================================
 # Project 2: Modelling daily cycling demand in Edinburgh
-# Authors: [Name1], [Name2], [Name3]
+# Authors: [Karthik Sutheeshkumar], [Kiet Lam], [Name3]
 # ============================================================
 
 #
