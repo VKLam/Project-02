@@ -47,7 +47,7 @@ m3<- lm(log(count+1)~ I(temp_mean^2)+weekend +trend+factor(month)+factor(dow),da
 # m3 <- ...
 
 # 4. Cross-Validation Functions
-
+#haro
 calc_scores <- function(y, mu, sigma, alpha = 0.05) {
   # y     : vector of observed values
   # mu    : vector of predictive means (from predict(fit, newdata=test)$fit)
@@ -60,7 +60,7 @@ calc_scores <- function(y, mu, sigma, alpha = 0.05) {
   RMSE <- sqrt(mean((y-mu)^2))
   MAE <- mean(abs(y-mu))
   DS <- (y-mu)^2/sigma^2 + 2 * log(sigma)
-  #testing
+  
 
 }
 
