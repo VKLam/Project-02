@@ -21,7 +21,6 @@ cycle_daily_df <- cycle_daily_df %>%
   mutate(
     month = factor(month, levels = 1:12, ordered = TRUE),
     
-    
     # Task 2: dow with explicit levels 
     dow = factor(dow, levels = c("Sun","Mon","Tue","Wed","Thu","Fri","Sat"), ordered = TRUE),
     
@@ -57,6 +56,11 @@ calc_scores <- function(y, mu, sigma, alpha = 0.05) {
   # Returns a named list with RMSE, MAE, DS, IS
   
   # Implement RMSE, MAE, DS, and IS here
+  
+  RMSE <- sqrt(mean((y-mu)^2))
+  MAE <- mean(abs(y-mu))
+  DS <- (y-mu)^2/sigmaˆ2 + 2 * log(sigma)
+
 }
 
 # 5. Leave-One-Year-Out CV Loop 
