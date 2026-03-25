@@ -1,6 +1,6 @@
 ---
 title: 'Project 2: Modelling daily cycling demand in Edinburgh'
-author: 'Group members: [Name1], [Name2], [Name3]'
+author: 'Group members: [Karthik Sutheeshkumar], [Name2], [Name3]'
 date: 'Word count: [XXX words]'
 output:
   pdf_document:
