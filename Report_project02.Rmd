@@ -1,0 +1,111 @@
+---
+title: 'Project 2: Modelling daily cycling demand in Edinburgh'
+author: 'Group members: [Name1], [Name2], [Name3]'
+date: 'Word count: [XXX words]'
+output:
+  pdf_document:
+    number_sections: true
+    fig_caption: true
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{float}
+- \usepackage{amsmath}
+- \floatplacement{figure}{H}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo      = FALSE,    # This hides all code from the main body 
+  message   = FALSE, 
+  warning   = FALSE
+)
+source("code.R") # Runs all models and creates tables/plots in the background
+```
+
+# Introduction
+
+<!--
+Required content (remove before submission):
+3-5 sentences covering:
+  - What the dataset is and where it comes from
+  - What the modelling goal is
+  - Why this is useful for transport planning in Edinburgh
+Do NOT describe the report structure here.
+-->
+
+# Exploratory data analysis
+
+<!--
+Required content:
+  1. Summary statistics table for count, temp_mean, temp_min, temp_max.
+  2. Time series of daily counts 2020-2025 with a smoother.
+  3. Boxplots of count by month and by day of week.
+  4. Scatter plot of count vs temp_mean.
+  5. At least one further plot of your choice highlighting a notable feature.
+Every figure must have a caption and be explicitly discussed in the text.
+-->
+
+# Baseline model M0
+
+<!--
+Required content:
+  1. State M0 mathematically using a numbered equation.
+  2. Coefficient table (use kable, not raw output).
+  3. Residuals vs fitted and normal QQ diagnostic plots, side by side.
+  4. Brief assessment: what does M0 get right and wrong? 
+     What motivates M1?
+-->
+
+# Proposed models M1--M3
+
+<!--
+For each model:
+  - State the model mathematically.
+  - Justify every new term BEFORE showing results.
+  - Show diagnostic plots and comment on improvement over the previous model.
+-->
+
+## Model M1: Trend and factor 
+## Model M2: Nonlinear temperature
+## Model M3: [your extension title]
+
+# Evaluation
+## Statistical Performance
+
+<!--
+Required content:
+  1. Table 1: LOYO CV scores for M0-M3.
+  2. Table 2: CV RMSE and DS by month for your final model.
+  3. Discussion: do the scores agree on which model is best? 
+     If not, explain why and state your final model choice explicitly.
+-->
+
+## Practical Performance
+
+<!--
+One subsection per planning question (5.1-5.5 from the assignment brief).
+Each must include mandatory fixed-format numbers and real-world interpretation.
+-->
+
+# Discussion and limitations
+
+<!--
+3-5 paragraphs covering:
+  - Whether model assumptions appear satisfied.
+  - Key limitations of the model and data.
+  - What ideas would improve prediction.
+  - Whether findings generalise to other cities or future years.
+Do not introduce new results here.
+-->
+
+# Appendix: Code
+
+All analysis code is in `code.R` and is reproduced below.
+
+```{r print-code, echo=TRUE, eval=FALSE, code=readLines("code.R")}
+```
+
+
