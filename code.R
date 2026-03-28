@@ -35,16 +35,15 @@ cycle_daily_df <- cycle_daily_df %>%
     
   )
 
+
+
 # 3. Model Fitting
 # Note: Use factor(month) in formulas for M1-M3
 m0 <- lm(count ~ temp_mean + weekend + month, data = cycle_daily_df)
 m1<-lm(count~ temp_mean + weekend +trend+factor(month)+factor(dow),data=cycle_daily_df)
-m2<- lm(count~ I(temp_mean^2)+weekend +trend+factor(month)+factor(dow),data=cycle_daily_df)
+m2<- lm(count~ temp_mean + I(temp_mean^2)+weekend +trend+factor(month)+factor(dow),data=cycle_daily_df)
 plot(m2)
 m3<- lm(log(count+1)~ I(temp_mean^2)+weekend +trend+factor(month)+factor(dow),data=cycle_daily_df)
-# m1 <- ...
-# m2 <- ...
-# m3 <- ...
 
 # 4. Cross-Validation Functions
 calc_scores <- function(y, mu, sigma, alpha = 0.05) {
@@ -59,10 +58,17 @@ calc_scores <- function(y, mu, sigma, alpha = 0.05) {
   RMSE <- sqrt(mean((y-mu)^2))
   MAE <- mean(abs(y-mu))
   DS <- (y-mu)^2/sigma^2 + 2 * log(sigma)
-  
 
 }
 
 # 5. Leave-One-Year-Out CV Loop 
+
+
+
+
+
+
+
 # 6. CV by Month 
+
 # ...
