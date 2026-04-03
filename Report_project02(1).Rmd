@@ -218,7 +218,7 @@ m1_resid_fitted_plot + m1_qq_plot
 
 Compared to M0, M1 shows some improvement — the fitted values span a wider range, 
 suggesting the additional predictors (trend, factor month, factor day of week) give the model more flexibility to capture variation in demand. However, the core issues persist. The residuals versus fitted plot still shows increasing spread at higher 
-fitted values, indicating heteroscedasticity remains unresolved. The QQ plot 
+fitted values, indicating that heteroscedasticity remains unresolved. The QQ plot 
 continues to show a pronounced right tail, with standardized residuals reaching 
 above 6 at the upper end, reflecting the right-skewed nature of the count data 
 that a Gaussian model struggles to accommodate. These issues motivate further 
