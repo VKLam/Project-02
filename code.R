@@ -92,30 +92,25 @@ cv_results <- bind_rows(lapply(names(model_formulas), function(model_name) {
     
     # Observed values from test_df
     y <- test_df$count
-    
     if (model_name == "M3") {
-      y_log <- log(test_df$count + 1)  # log scale for DS and IS
-      y     <- test_df$count            # count scale for RMSE and MAE
+      mu_log    <- mu
+      sigma_log <- sigma
       
-      mu_log <- mu                      # log scale
-      mu_count <- exp(mu) - 1           # count scale
+      # Back-transform to count scale
+      mu_count    <- exp(mu_log) - 1
+      sigma_count <- exp(mu_log) * sigma_log  # delta method
       
-      sigma_log <- sigma                # log scale
+      y <- test_df$count
       
-      # RMSE and MAE on count scale
-      RMSE <- sqrt(mean((y - mu_count)^2))
-      MAE  <- mean(abs(y - mu_count))
-      
-      # DS and IS on log scale
-      scores_log <- calc_scores(y_log, mu_log, sigma_log)
+      CV_scores <- calc_scores(y, mu_count, sigma_count)
       
       return(data.frame(
         model = model_name,
         year  = yr,
-        RMSE  = RMSE,
-        MAE   = MAE,
-        DS    = mean(scores_log$DS),
-        IS    = mean(scores_log$IS)
+        RMSE  = CV_scores$RMSE,
+        MAE   = CV_scores$MAE,
+        DS    = mean(CV_scores$DS),
+        IS    = mean(CV_scores$IS)
       ))
     }
     
