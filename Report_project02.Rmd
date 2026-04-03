@@ -55,7 +55,7 @@ Every figure must have a caption and be explicitly discussed in the text.
 
 **Summary statistics table**
 
-```{r}
+```{r,echo=FALSE}
 kable_summary_stats
 ```
 
@@ -64,7 +64,7 @@ The above table summarises the key numeric variables across the 2100 daily obser
 
 **Time series of daily counts with a smoother **
 
-```{r}
+```{r,echo=FALSE}
 eda_time_series_plot
 ```
 
@@ -82,7 +82,7 @@ The boxplot by month confirms the seasonal pattern seen in the time series. Coun
 are lowest in January and December, with medians around 7,000-8,000 cyclists per day, rising steadily through spring and peaking between May and August. Winter months see roughly half the cycling activity of summer months, which has clear implications for seasonal infrastructure planning.
 
 
-```{r}
+```{r,echo=FALSE}
 eda_dow_boxplot
 ```
 
@@ -90,7 +90,7 @@ Cycling demand is noticeably higher on weekdays than weekends, with Tuesday to F
 
 **Scatter plot of count vs temp_mean**
 
-```{r}
+```{r,echo=FALSE}
 eda_temp_scatter
 ```
 
@@ -99,7 +99,7 @@ The above figure shows a clear positive but non-linear relationship between mean
 **Showing relation between count and mean temperature during COVID and post COVID period**
 
 
-```{r}
+```{r,echo=FALSE}
 eda_covid_temp_plot
 ```
 
@@ -130,7 +130,7 @@ $$
 
 $$
 
-```{r}
+```{r,echo=FALSE}
 kable_m0_coeff_table
 ```
 
@@ -143,7 +143,7 @@ average as the month number increases, though this is a crude approximation sinc
 the relationship between month and demand is not linear.
 
 
-```{r}
+```{r,echo=FALSE}
 m0_resid_fitted_plot + m0_qq_plot
 ```
 
@@ -212,7 +212,7 @@ this drift, potentially biasing all other coefficient estimates
 
 Diagnostics of m1
 
-```{r}
+```{r,echo=FALSE}
 m1_resid_fitted_plot + m1_qq_plot
 ```
 
@@ -251,9 +251,61 @@ which is also physically plausible — once conditions are warm enough, further
 increases in temperature have a smaller effect on whether people choose to cycle.
 
 
+```{r,echo=FALSE}
+m2_resid_fitted_plot+m2_qq_plot
+```
+
+M2 shows marginal improvement over M1 — the residuals versus fitted plot appears 
+slightly more evenly spread, suggesting the quadratic temperature term has captured some additional structure in the data. The lower tail of the QQ plot also follows 
+the reference line more closely than in M1. However, the right tail remains heavily skewed, with standardised residuals exceeding 7 at the upper end, worse than M1. 
+Heteroscedasticity also persists, with residual spread still growing at higher 
+fitted values. The consistently heavy right tail across M0, M1, and M2 strongly 
+suggests that a Gaussian model is fundamentally inappropriate for these count data, and motivates the log transformation of the response in M3.
 
 
-## Model M3: [your extension title]
+
+## Model M3: [Log-Transformed Response]
+
+$$
+\log(\text{count}_i + 1) = \beta_0 
++ \beta_1 \cdot \text{temp\_mean}_i 
++ \beta_2 \cdot \text{temp\_mean}_i^2 
++ \beta_3 \cdot \text{weekend}_i 
++ \beta_4 \cdot \text{trend}_i 
++ \sum_{m=2}^{12} \gamma_m \cdot \mathbf{1}(\text{month}_i = m) 
++ \sum_{d=2}^{7} \delta_d \cdot \mathbf{1}(\text{dow}_i = d) 
++ \varepsilon_i, \quad \varepsilon_i \sim N(0, \sigma^2)
+$$
+
+M3 keeps all predictors from M2 but log-transforms the response variable, 
+fitting log(count + 1) rather than count directly. The diagnostic plots for 
+M0, M1, and M2 consistently showed two problems: a heavy right tail in the 
+QQ plot and residual spread increasing with fitted values. Both are classic 
+symptoms of right-skewed, non-negative count data being modelled with a 
+Gaussian assumption. The log transformation directly addresses this — by 
+compressing large values, it reduces skewness in the response and stabilises 
+variance, making the Gaussian assumption more plausible. The +1 is added 
+before taking the log to handle any zero counts, since log(0) is undefined.
+
+
+```{r,echo=FALSE}
+m3_resid_fitted_plot + m3_qq_plot
+```
+
+The diagnostic plots for M3 show a marked improvement over all previous models. 
+The residuals versus fitted plot no longer shows the growing spread seen in M0 
+through M2 — residuals are now scattered fairly evenly around zero across the 
+full range of fitted values, suggesting the log transformation has largely 
+resolved the heteroscedasticity. The QQ plot is dramatically better, with 
+standardised residuals following the reference line closely across almost the 
+entire range, compared to the severe right tail deviation seen in M2 where 
+residuals exceeded 7. The tails still deviate slightly at both ends, indicating 
+some remaining non-normality, but this is a substantial improvement. Overall, 
+the log transformation successfully addressed the two core issues identified in 
+M0 through M2 — right skew and non-constant variance — making the Gaussian 
+assumption considerably more plausible for M3 than for any of the earlier models.
+
+
 
 # Evaluation
 ## Statistical Performance
