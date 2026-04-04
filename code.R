@@ -19,6 +19,8 @@ load('cycle_daily_df.Rdata')
 # 2. Data Wrangling 
 cycle_daily_df <- cycle_daily_df %>%
   mutate(
+    month_num = month,
+    # Task 1: month as ordered factor for plots/inference
     month = factor(month, levels = 1:12, ordered = TRUE),
     
     # Task 2: dow with explicit levels 
@@ -27,12 +29,7 @@ cycle_daily_df <- cycle_daily_df %>%
     
     # Task 3: trend as integer days since 2020-01-01
     trend = as.integer(date - as.Date("2020-01-01"))
-    # Task 1: month as ordered factor for plots/inference
 
-    # Task 2: dow with explicit levels 
-
-    # Task 3: trend as integer days since 2020-01-01
-    
   )
 
 
@@ -40,16 +37,16 @@ cycle_daily_df <- cycle_daily_df %>%
 # 3. Model Fitting
 # Note: Use factor(month) in formulas for M1-M3
 model_formulas <- list(
-  M0 = count ~ temp_mean + weekend + factor(month),
+  M0 = count ~ temp_mean + weekend + month_num,
   M1 = count ~ temp_mean + weekend + trend + factor(month) + factor(dow),
   M2 = count ~ temp_mean + I(temp_mean^2)  + weekend + trend + factor(month) + factor(dow),
   M3 = log(count+1) ~ temp_mean + I(temp_mean^2)+ weekend +trend +factor(month) + factor(dow)
 )
 
 m0 <- lm(model_formulas[["M0"]], data = cycle_daily_df)
-m1<-lm(model_formulas[["M1"]], data=cycle_daily_df)
-m2<- lm(model_formulas[["M2"]], data=cycle_daily_df)
-m3<- lm(model_formulas[["M3"]], data=cycle_daily_df)
+m1 <-lm(model_formulas[["M1"]], data=cycle_daily_df)
+m2 <- lm(model_formulas[["M2"]], data=cycle_daily_df)
+m3 <- lm(model_formulas[["M3"]], data=cycle_daily_df)
 
 # 4. Cross-Validation Functions
 calc_scores <- function(y, mu, sigma, alpha = 0.05) {
@@ -73,6 +70,7 @@ calc_scores <- function(y, mu, sigma, alpha = 0.05) {
 
 # 5. Leave-One-Year-Out CV Loop 
 cycle_cv_df <- cycle_daily_df %>% mutate(month = as.numeric(month))
+
 years <-unique(cycle_cv_df$year)
 
 cv_results <- bind_rows(lapply(names(model_formulas), function(model_name) {
