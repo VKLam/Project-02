@@ -3,7 +3,7 @@ title: 'Project 2: Modelling daily cycling demand in Edinburgh'
 author: 'Group members: [Karthik Sutheeshkumar], [Kiet Lam], [Leon]'
 date: 'Word count: [0 words]'
 output:
-  pdf_document:
+  bookdown::pdf_document2:
     number_sections: true
     fig_caption: true
     latex_engine: xelatex
@@ -40,9 +40,6 @@ Do NOT describe the report structure here.
 
 Edinburgh operates a network of automatic cycling counters at strategic locations across the city that records the total number of cyclists passing each site daily, The resulting dataset contains 2,180 observations spanning from 2020 to 2025, covering a period that includes the COVID-19 pandemic and a gradual return to normal travel patterns. Using this data, we evaluate a sequence of linear regression models of increasing complexity rigorously to explain how daily cycling demand varies with weather conditions, day of week, seasonality, and longer-term trend, evaluating each model using leave-one-year-out cross validation. The analysis is guided by three questions of practical interest to Edinburgh City Council: how well the model predicts demand across different seasons, how sensitive cycling is to temperature, and what the long-term trend implies for infrastructure planning over the next decade.
   
-
-
-
 
 
 
@@ -85,40 +82,40 @@ The above table summarises the key numeric variables across the 2180 daily obser
 eda_time_series_plot
 ```
 
-Figure \ref{fig:fig-ts} shows the daily cyclist counts across the full observation period from 2020-2025, with a smoother overlaid to highlight the trend, filtering out day-to-day variability. We can see the obvious pattern that the daily count climbs every summer and fall back each winter, and this repeats every year. There is a visible dip around 2020-2021, which is unsurprising given the COVID-19 lockdowns during that period. After that, daily counts reach their highest levels around 2022-23. The drop at the end of the observation period coincides with the data ending in early 2026, making it difficult to distinguish a seasonal effect from a genuine trend change. Certain days stands out in count, especially one around 2022 that exceeds 40,000 cyclists a day, which probably reflects an unusually warm day.
+Figure \@ref(fig:fig-ts) shows the daily cyclist counts across the full observation period from 2020-2025, with a smoother overlaid to highlight the trend, filtering out day-to-day variability. We can see the obvious pattern that the daily count climbs every summer and fall back each winter, and this repeats every year. There is a visible dip around 2020-2021, which is unsurprising given the COVID-19 lockdowns during that period. After that, daily counts reach their highest levels around 2022-23. The drop at the end of the observation period coincides with the data ending in early 2026, making it difficult to distinguish a seasonal effect from a genuine trend change. Certain days stands out in count, especially one around 2022 that exceeds 40,000 cyclists a day, which probably reflects an unusually warm day.
 
 
 **Boxplots of count by month and by day of week **
 
-```{r boxplot_month,echo=FALSE, fig.cap="Distribution of daily cyclist counts by month.",fig.width=6, fig.height=2.25}
+```{r fig-boxplotmonth,echo=FALSE, fig.cap="Distribution of daily cyclist counts by month.",fig.width=6, fig.height=2.25}
 eda_month_boxplot
 ```
 
-\ref{fig:boxplot_month} confirms the seasonal pattern seen in the time series. Counts are lowest in January and December, with medians around 10,500-11,500 cyclists per day, rising steadily through spring and peaking between May and August. Winter months see roughly half the cycling activity of summer months, which has clear implications for seasonal infrastructure planning.
+Figure \@ref(fig:fig-boxplotmonth) confirms the seasonal pattern seen in the time series. Counts are lowest in January and December, with medians around 10,500-11,500 cyclists per day, rising steadily through spring and peaking between May and August. Winter months see roughly half the cycling activity of summer months, which has clear implications for seasonal infrastructure planning.
 
 
-```{r boxplot_dow,echo=FALSE, fig.cap="Distribution of daily cyclist counts by day of week",fig.width=6, fig.height=3}
+```{r fig-boxplotdow,echo=FALSE, fig.cap="Distribution of daily cyclist counts by day of week",fig.width=6, fig.height=3}
 eda_dow_boxplot
 ```
 
-\ref{fig:boxplot_dow} suggests that cycling demand is higher on weekdays than weekends, with Tuesday to Friday showing the highest medians of around 11,000-12,000 cyclists per day. Sunday and Monday stand out as the lowest, with medians closer to 8,000-9,000, suggesting that commuting is a major driver of cycling demand in Edinburgh. 
+Figure \@ref(fig:fig-boxplotdow) suggests that cycling demand is higher on weekdays than weekends, with Tuesday to Friday showing the highest medians of around 11,000-12,000 cyclists per day. Sunday and Monday stand out as the lowest, with medians closer to 8,000-9,000, suggesting that commuting is a major driver of cycling demand in Edinburgh. 
 
 **Scatter plot of count vs temp_mean**
 
-```{r scatter_temp,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature",fig.width=6, fig.height=3}
+```{r fig-scattertemp,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature",fig.width=6, fig.height=3}
 eda_temp_scatter
 ```
 
-\ref{fig:scatter_temp} shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
+Figure \@ref(fig:scattertemp) shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
 
 **Showing relation between count and mean temperature during COVID and post COVID period**
 
 
-```{r covid_scatter,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature by COVID and post-COVID period (2020–2025)",fig.width=6, fig.height=3}
+```{r fig-covidscatter,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature by COVID and post-COVID period (2020–2025)",fig.width=6, fig.height=3}
 eda_covid_temp_plot
 ```
 
-\ref{fig:covid_scatter}reveals an interesting and somewhat counter intuitive pattern — cycling counts during the COVID period (2020-2021) were actually higher at warmer temperatures compared to post-COVID years, with the red smoother sitting well 
+ Figure \@ref(fig:fig-covidscatter) reveals an interesting and somewhat counter intuitive pattern — cycling counts during the COVID period (2020-2021) were actually higher at warmer temperatures compared to post-COVID years, with the red smoother sitting well 
 above the blue at temperatures above 10°C. This likely reflects that during lockdowns, cycling shifted from commuting to recreational use, with people more willing to cycle on pleasant days but much less likely to cycle in cold or wet 
 conditions, explaining the steeper temperature sensitivity. At cold temperatures the pattern reverses, with post-COVID counts higher, consistent with commuters cycling regardless of weather. This difference in behaviour between the two periods suggests that a COVID indicator variable may improve model fit, and motivates its inclusion as a candidate extension in M3.
 
@@ -151,7 +148,7 @@ The coefficients table for M0 shows the estimated coefficients for M0. All four 
 in the EDA. The negative month coefficient (-247) implies that daily count declines on average as the month increases, though this is a crude approximation since the relationship between month and demand is not linear.
 
 
-```{r m0_diagnostics,echo=FALSE,fig.cap="Diagnostics for M0",fig.width=7, fig.height=3}
+```{r fig-m0diagnostics,echo=FALSE,fig.cap="Diagnostics for M0",fig.width=7, fig.height=3}
 m0_resid_fitted_plot + m0_qq_plot
 ```
 
@@ -201,12 +198,11 @@ Third, a linear trend term is added, defined as the number of days since 1 Janua
 
 **Diagnostics of M1**
 
-```{r m1_diagnostics,echo=FALSE,fig.cap="Diagnostics for M1",fig.width=7, fig.height=4}
+```{r fig-m1diagnostics,echo=FALSE,fig.cap="Diagnostics for M1",fig.width=7, fig.height=4}
 m1_resid_fitted_plot + m1_qq_plot
 ```
 
 Compared to M0, M1 shows some improvement — the fitted values span a wider range, suggesting the additional predictors (trend, factor month, factor day of week) give the model more flexibility to capture variation in demand. However, the core issues persist. The residuals versus fitted plot still shows increasing spread at higher fitted values, indicating that heteroscedasticity remains unresolved. The QQ plot continues to show a pronounced right tail, with standardized residuals reaching above 6 at the upper end, reflecting the right-skewed nature of the count data that a Gaussian model struggles to accommodate. These issues motivate further extensions in M2 and M3. 
-
 
 ## Model M2: Nonlinear temperature
 
@@ -222,7 +218,7 @@ M2 extends M1 by replacing the linear temperature term with a quadratic, adding 
 flattens out above around 10°C rather than increasing at a constant rate, which a linear term cannot capture. Including the quadratic term allows the model to reflect this diminishing sensitivity to temperature at higher values, which is also physically plausible — once conditions are warm enough, further increases in temperature have a smaller effect on whether people choose to cycle.
  
 
-```{r m2_diagnostics,echo=FALSE,fig.cap="Diagnostics for M2",fig.width=7, fig.height=4}
+```{r fig-m2diagnostics,echo=FALSE,fig.cap="Diagnostics for M2",fig.width=7, fig.height=4}
 m2_resid_fitted_plot+m2_qq_plot
 ```
 
@@ -241,15 +237,14 @@ $$
 + \varepsilon_i
 $$
 
-**M3** keeps all predictors from M2 but log-transforms the response variable, fitting log(count + 1) rather than count directly. The diagnostic plots for **M0**, **M1**, and **M2** consistently showed two problems: a heavy right tail in the QQ plot and residual spread increasing with fitted values. Both are classic symptoms of right-skewed, non-negative count data being modelled with a Gaussian assumption. The log transformation directly addresses this — by compressing large values, it reduces skewness in the response and stabilizes variance, making the Gaussian assumption more plausible. The +1 is added before taking the log to handle any zero counts, since log(0) is undefined.
+M3 keeps all predictors from M2 but log-transforms the response variable, fitting log(count + 1) rather than count directly. The diagnostic plots for M0, M1, and M2 consistently showed two problems: a heavy right tail in the QQ plot and residual spread increasing with fitted values. Both are classic symptoms of right-skewed, non-negative count data being modelled with a Gaussian assumption. The log transformation directly addresses this — by compressing large values, it reduces skewness in the response and stabilizes variance, making the Gaussian assumption more plausible. The +1 is added before taking the log to handle any zero counts, since log(0) is undefined.
 
 
-```{r m3_diagnostics,echo=FALSE,fig.cap="Diagnostics for M3",fig.width=7, fig.height=4}
+```{r fig-m3diagnostics,echo=FALSE,fig.cap="Diagnostics for M3",fig.width=7, fig.height=4}
 m3_resid_fitted_plot + m3_qq_plot
 ```
 
-The diagnostic plots for **M3** show a marked improvement over all previous models. The residuals versus fitted plot no longer shows the growing spread seen in **M0** 
-through M2 — residuals are now scattered fairly evenly around zero across the full range of fitted values, suggesting the log transformation has largely resolved the heteroscedasticity. The QQ plot is dramatically better, with standardised residuals following the reference line closely across almost the entire range, compared to the severe right tail deviation seen in M2 where residuals exceeded 7. The tails still deviate slightly at both ends, indicating some remaining non-normality, but this is a substantial improvement. Overall, the log transformation successfully addressed the two core issues identified in **M0** through **M2** — right skew and non-constant variance — making the Gaussian assumption considerably more plausible for M3 than for any of the earlier models.
+The diagnostic plots for M3 show a marked improvement over all previous models. The residuals versus fitted plot no longer shows the growing spread seen in M0 through M2 — residuals are now scattered fairly evenly around zero across the full range of fitted values, suggesting the log transformation has largely resolved the heteroscedasticity. The QQ plot is dramatically better, with standardised residuals following the reference line closely across almost the entire range, compared to the severe right tail deviation seen in M2 where residuals exceeded 7. The tails still deviate slightly at both ends, indicating some remaining non-normality, but this is a substantial improvement. Overall, the log transformation successfully addressed the two core issues identified in M0 through M2 — right skew and non-constant variance — making the Gaussian assumption considerably more plausible for M3 than for any of the earlier models.
 
 
 # Evaluation
@@ -358,7 +353,7 @@ kable(trend_comparison,
 
 The COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
 
-```{r extrapolation, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Extrapolation of Cycling Demand"}
+```{r fig-extrapolation, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Extrapolation of Cycling Demand"}
 extrapolation_plot
 ```
 
@@ -367,7 +362,7 @@ kable(threshold_15000,
       caption = "Table 7. Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,
       linesep = "")
 ```
-The extrapolation based on M3 projects declining, rather than increasing, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020. It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
+The extrapolation based on M3 projects decline, rather than an increase, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020. It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
 
 This kind of long-run extrapolation should be treated with caution for at least two reasons. First, the fitted linear trend is estimated over a short period, specfically the COVID-19 disruption, where many were forced to stay indoors, hence it may not represent the true long-term path of cycling demand. Secondly, the projection holds weather and seasonal conditions fixed and ignores other factors that could substantially alter future demand. Notably as infrastructure investment, policy changes, fuel prices, or changes in population and commuting patterns. For these reasons, the extrapolation is useful as a simple model-based scenario, but not as a reliable long-term forecast.
 
@@ -375,11 +370,11 @@ This kind of long-run extrapolation should be treated with caution for at least 
 
 This subsection examines the residuals of the final model over time in order to identify a specific period in which the model performs notably poorly. The aim is to determine whether the model systematically over- or under-predicts during that period, and to consider what that implies from both a statistical and transport-planning perspective.
 
-```{r res_time, echo=FALSE,fig.width=7, fig.height=4, fig.cap="Residuals over Time"}
+```{r fig-restime, echo=FALSE,fig.width=7, fig.height=4, fig.cap="Residuals over Time"}
 resid_time_plot
 ```
 
-The residual-over-time plot identifies periods where the final model appears to fit particularly poorly. This can be caused either by residuals that are unusually large in magnitude or because they are persistently positive or negative over a sustained interval.
+Figure \@ref(fig:fig-restime) identifies periods where the final model appears to fit particularly poorly. This can be caused either by residuals that are unusually large in magnitude or because they are persistently positive or negative over a sustained interval.
 
 ```{r, echo=FALSE}
 kable(head(poor_period_table, 10),
