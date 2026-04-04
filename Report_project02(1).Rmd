@@ -8,6 +8,7 @@ output:
     fig_caption: true
     latex_engine: xelatex
     keep_tex: true
+    toc: false
   html_document:
     df_print: paged
 header-includes:
@@ -40,8 +41,6 @@ Do NOT describe the report structure here.
 
 Edinburgh operates a network of automatic cycling counters at strategic locations across the city that records the total number of cyclists passing each site daily, The resulting dataset contains 2,180 observations spanning from 2020 to 2025, covering a period that includes the COVID-19 pandemic and a gradual return to normal travel patterns. Using this data, we evaluate a sequence of linear regression models of increasing complexity rigorously to explain how daily cycling demand varies with weather conditions, day of week, seasonality, and longer-term trend, evaluating each model using leave-one-year-out cross validation. The analysis is guided by three questions of practical interest to Edinburgh City Council: how well the model predicts demand across different seasons, how sensitive cycling is to temperature, and what the long-term trend implies for infrastructure planning over the next decade.
   
-
-
 
 # Exploratory data analysis
 
@@ -106,7 +105,7 @@ Figure \@ref(fig:fig-boxplotdow) suggests that cycling demand is higher on weekd
 eda_temp_scatter
 ```
 
-Figure \@ref(fig:scattertemp) shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
+Figure 4 shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
 
 **Showing relation between count and mean temperature during COVID and post COVID period**
 
@@ -143,6 +142,7 @@ kable(m0_coef_table,
       caption = "Coefficients table for baseline model M0.", booktabs = TRUE,,
       linesep = "")
 ```
+
 
 The coefficients table for M0 shows the estimated coefficients for M0. All four predictors are highly significant $(p < 0.001)$. Each 1°C increase in mean temperature is associated with approximately 247 additional cyclists per day with the other variables held fixed, while weekend days see around 1,247 fewer cyclists than weekdays, consistent with the commuter-driven pattern observed 
 in the EDA. The negative month coefficient (-247) implies that daily count declines on average as the month increases, though this is a crude approximation since the relationship between month and demand is not linear.
