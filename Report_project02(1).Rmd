@@ -7,6 +7,7 @@ output:
     number_sections: true
     fig_caption: true
     latex_engine: xelatex
+    keep_tex: true
   html_document:
     df_print: paged
 header-includes:
@@ -38,7 +39,7 @@ Do NOT describe the report structure here.
 -->
 
 Edinburgh operates a network of automatic cycling counters at strategic locations across the city that records the total number of cyclists passing each site daily, The resulting dataset contains 2,180 observations spanning from 2020 to 2025, covering a period that includes the COVID-19 pandemic and a gradual return to normal travel patterns. Using this data, we evaluate a sequence of linear regression models of increasing complexity rigorously to explain how daily cycling demand varies with weather conditions, day of week, seasonality, and longer-term trend, evaluating each model using leave-one-year-out cross validation. The analysis is guided by three questions of practical interest to Edinburgh City Council: how well the model predicts demand across different seasons, how sensitive cycling is to temperature, and what the long-term trend implies for infrastructure planning over the next decade.
-
+  
 
 
 
@@ -72,8 +73,8 @@ Every figure must have a caption and be explicitly discussed in the text.
 ```{r,echo=FALSE}
 kable(summary_stats,
       caption = "Summary statistics for daily cyclist count and temperature variables.",
-      booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      booktabs = TRUE,format = "latex",
+      linesep = "")
 ```
 
 The above table summarises the key numeric variables across the 2180 daily observations. Daily cyclist count average around 10,816 but with a large standard deviation of 4729 reflecting strong seasonal variation. The minimum and maximum count of 1,264 and 43,864 respectively confirm that demand varies dramatically across the year. Edinburgh's climate is characterized by mild but cool conditions, with mean daily temperatures averaging 9.7°C and ranging from -8.1°C to 23°C, typical for a Scottish city. The wide spread in temperature variables, ranging from -14°C to 31°C, suggests that weather conditions vary considerably across the observation period and are likely to play an important role in explaining day-to-day variation in cycling demand.
@@ -84,7 +85,7 @@ The above table summarises the key numeric variables across the 2180 daily obser
 eda_time_series_plot
 ```
 
-Figure \ref(fig:fig-ts) shows the daily cyclist counts across the full observation period from 2020-2025, with a smoother overlaid to highlight the trend, filtering out day-to-day variability. We can see the obvious pattern that the daily count climbs every summer and fall back each winter, and this repeats every year. There is a visible dip around 2020-2021, which is unsurprising given the COVID-19 lockdowns during that period. After that, daily counts reach their highest levels around 2022-23. The drop at the end of the observation period coincides with the data ending in early 2026, making it difficult to distinguish a seasonal effect from a genuine trend change. Certain days stands out in count, especially one around 2022 that exceeds 40,000 cyclists a day, which probably reflects an unusually warm day.
+Figure \ref{fig:fig-ts} shows the daily cyclist counts across the full observation period from 2020-2025, with a smoother overlaid to highlight the trend, filtering out day-to-day variability. We can see the obvious pattern that the daily count climbs every summer and fall back each winter, and this repeats every year. There is a visible dip around 2020-2021, which is unsurprising given the COVID-19 lockdowns during that period. After that, daily counts reach their highest levels around 2022-23. The drop at the end of the observation period coincides with the data ending in early 2026, making it difficult to distinguish a seasonal effect from a genuine trend change. Certain days stands out in count, especially one around 2022 that exceeds 40,000 cyclists a day, which probably reflects an unusually warm day.
 
 
 **Boxplots of count by month and by day of week **
@@ -142,8 +143,8 @@ $$
 
 ```{r,echo=FALSE}
 kable(m0_coef_table,
-      caption = "Coefficients table for baseline model M0.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Coefficients table for baseline model M0.", booktabs = TRUE,,
+      linesep = "")
 ```
 
 The coefficients table for M0 shows the estimated coefficients for M0. All four predictors are highly significant $(p < 0.001)$. Each 1°C increase in mean temperature is associated with approximately 247 additional cyclists per day with the other variables held fixed, while weekend days see around 1,247 fewer cyclists than weekdays, consistent with the commuter-driven pattern observed 
@@ -256,14 +257,14 @@ through M2 — residuals are now scattered fairly evenly around zero across the 
 
 ```{r, echo=FALSE}
 kable(cv_table1,
-      caption = "Table 1. Leave-one-year-out cross-validation scores for models M0--M3. Lower is better for all scores.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 1. Leave-one-year-out cross-validation scores for models M0--M3. Lower is better for all scores.", booktabs = TRUE,
+      linesep = "")
 ```
 Table 1 shows a clear evolution in predictive performance as the models become more flexible. M0 performs worst across all four metrics. This indicates that a baseline model with numeric month and no trend or day-of-week factor is too limited. M1 improves on M0 given it allows separate month and day-of-week effects and adding a long-term trend. M2 gives a small further improvement by allowing a nonlinear temperature effect. M3 performs best on all four cross-validation measures, with the lowest RMSE, MAE, DS, and IS. This is natural as lower values are better for all four scores, and as all four metrics agree M3 is selected as the final model.
 
 ```{r, echo=FALSE}
 kable(cv_table2,
-      caption = "Table 2. Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE) %>%
+      caption = "Table 2. Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE,format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
 Table 2 indicates that the final model performance varies noticeably throughout the year. RMSE is lowest in July (3485.3), with June (3909.0) and February (3973.2) also showing relatively strong performance, indicating that cyclist demand is predicted most accurately in these months. In contrast, RMSE is highest in April (6485.7) and March (5886.6), suggesting that demand is hardest to predict in early spring. The Dawid–Sebastiani score is also strongest in summer, reaching its lowest value in July (-1.24) and remaining low in June (-1.08), but it worsens sharply in December (0.92), indicating poorer calibration of the predictive distribution at the start of winter. In essence, from Table 2 we can conclude that although M3 performs the best overall, its predictive reliability is not uniform accross the calendar year, where it encounter the most difficulty in early spring and December. 
@@ -284,17 +285,17 @@ This subsection compares three nonlinear temperature specifications based on mea
 
 ```{r, echo=FALSE}
 kable(temp_compare_table,
-      caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE,
+      linesep = "")
 ```
-Between the three nonlinear temperature specification we can see the model utilising temp_min performed the best as it had the lowest RMSE score of 4574.7, DS score og 18.06 and IS score of 25010.3. However, the DS score was effectiveley identical between al three only different by 0.03 at most.This indicates that, within this model class, temp_min provides the strongest predictive performance.
+Between the three nonlinear temperature specification we can see the model utilizing temp_min performed the best as it had the lowest RMSE score of 4574.7, DS score og 18.06 and IS score of 25010.3. However, the DS score was effectiveley identical between al three only different by 0.03 at most.This indicates that, within this model class, temp_min provides the strongest predictive performance.
 
 This is a realistic conclusion to make. Majority of commuters will likely check their weather apps and decide whether they will bike based off the coldest conditions during the day. This is particularly true for morning commuters as this is typically the coldest period of time as well. Minimum daily temperature may therefore be more relevant than average or maximum temperature in determining whether people choose to cycle at all.
 
 ```{r, echo=FALSE}
 kable(temp_effect_table,
-      caption = "Estimated marginal effect of a 1°C increase using the chosen temperature variable.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Estimated marginal effect of a 1°C increase using the chosen temperature variable.", booktabs = TRUE,
+      linesep = "")
 ```  
 
 For the chosen model, the estimated effect of temperature depends on the temperature level because the model includes a quadratic term. At 5°C, a 1°C increase is associated with approximately 53.9 additional cyclists per day. At 15°C, the fitted model implies that a 1°C increase is associated with approximately 250.2 fewer cyclists per day.
@@ -314,8 +315,8 @@ The purpose of this subsection is to assess how reliably the final model predict
 
 ```{r, echo=FALSE}
 kable(cv_table2,
-      caption = "Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE,
+      linesep = "")
 ```
 
 As discussed in the Statistical Performance section, Table 2 shows that the predictive performance of the final model varies across the year. Prediction accuracy is strongest in summer, especially in June and July, where both RMSE and DS are lowest. The model performs worst in March and April on RMSE, while December has the highest DS, indicating poorer calibration of the predictive distribution. M3 is the best overall model, yet its performance is not equally reliable across all months.
@@ -328,22 +329,22 @@ This subsection examines the long-term trend in cycling demand implied by the fi
 
 ```{r, echo=FALSE}
 kable(trend_coefs,
-      caption = "Table 3. Trend coefficients from models M1--M3.") %>%
-  kable_styling(full_width = FALSE)
+      caption = "Table 3. Trend coefficients from models M1--M3.", booktabs = TRUE,
+      linesep = "")
 ```
 
 ```{r, echo=FALSE}
 kable(trend_significance,
-      caption = "Table 4. Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 4. Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE,
+      linesep = "")
 ```
 
 
 
 ```{r, echo=FALSE}
 kable(growth_rate_table,
-      caption = "Table 5. Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 5. Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE,
+      linesep = "")
 ```
 Table 3 and the significance table show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
 
@@ -351,8 +352,8 @@ The estimated trend is relatively consistent across M1, M2, and M3. All three mo
 
 ```{r, echo=FALSE}
 kable(trend_comparison,
-      caption = "Table 6. Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 6. Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,
+      linesep = "")
 ```
 
 The COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
@@ -363,8 +364,8 @@ extrapolation_plot
 
 ```{r, echo=FALSE}
 kable(threshold_15000,
-      caption = "Table 7. Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 7. Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,
+      linesep = "")
 ```
 The extrapolation based on M3 projects declining, rather than increasing, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020. It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
 
@@ -382,8 +383,8 @@ The residual-over-time plot identifies periods where the final model appears to 
 
 ```{r, echo=FALSE}
 kable(head(poor_period_table, 10),
-      caption = "Table 8. Months with the largest RMSE under the final model.", booktabs = TRUE) %>%
-  kable_styling(latex_options = "hold_position")
+      caption = "Table 8. Months with the largest RMSE under the final model.", booktabs = TRUE,
+      linesep = "")
 
 ```
 
