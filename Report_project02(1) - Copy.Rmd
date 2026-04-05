@@ -29,7 +29,7 @@ source("Proj2code.R") # Runs all models and creates tables/plots in the backgrou
 
 # Introduction
 
-
+ 
 <!--
 Required content (remove before submission):
 3-5 sentences covering:
@@ -349,8 +349,8 @@ This subsection compares three nonlinear temperature specifications based on mea
 
 ```{r, echo=FALSE}
 kable(temp_compare_table,
-      caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE,
-      linesep = "")
+      caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 
@@ -360,8 +360,8 @@ This is a realistic conclusion to make. Majority of commuters will likely check 
 
 ```{r, echo=FALSE}
 kable(temp_effect_table,
-      caption = "Estimated marginal effect of a 1°C increase using the chosen temperature variable.", booktabs = TRUE,
-      linesep = "")
+      caption = "Estimated marginal effect of a 1°C increase using the chosen temperature variable.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```  
 
 For the chosen model, the estimated effect of temperature depends on the temperature level because the model includes a quadratic term. At 5°C, a 1°C increase is associated with approximately 53.9 additional cyclists per day. At 15°C, the fitted model implies that a 1°C increase is associated with approximately 250.2 fewer cyclists per day.
@@ -391,22 +391,22 @@ This subsection examines the long-term trend in cycling demand implied by the fi
 
 ```{r tab-trendcoefs, echo=FALSE}
 kable(trend_coefs,
-      caption = "Trend coefficients from models M1--M3.", booktabs = TRUE,
-      linesep = "")
+      caption = "Trend coefficients from models M1--M3.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 ```{r tab-trendsig, echo=FALSE}
 kable(trend_significance,
-      caption = "Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE,
-      linesep = "")
+      caption = "Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 
 
 ```{r tab-growthrate, echo=FALSE}
 kable(growth_rate_table,
-      caption = "Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE,
-      linesep = "")
+      caption = "Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 Both Table \@ref(tab:tab-trendcoefs) and \@ref(tab:tab-trendsig) show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
 
@@ -414,8 +414,8 @@ The estimated trend is relatively consistent across M1, M2, and M3, where all th
 
 ```{r tab-trendcomp, echo=FALSE}
 kable(trend_comparison,
-      caption = "Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,
-      linesep = "")
+      caption = "Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 Table \@ref(tab:tab-trendcomp) suggests that the COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
@@ -426,8 +426,8 @@ extrapolation_plot
 
 ```{r tab-threshold, echo=FALSE}
 kable(threshold_15000,
-      caption = "Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,
-      linesep = "")
+      caption = "Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 The extrapolation based on M3 projects decline in Figure \@ref(fig:fig-extrapolation), rather than an increase, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020 as seen in Table \@ref(tab:tab-threshold). It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
 
@@ -445,8 +445,8 @@ Figure \@ref(fig:fig-restime) identifies periods where the final model appears t
 
 ```{r tab-poorperiod, echo=FALSE}
 kable(head(poor_period_table, 10),
-      caption = "Months with the largest RMSE under the final model.", booktabs = TRUE,
-      linesep = "")
+      caption = "Months with the largest RMSE under the final model.", booktabs = TRUE,format = "latex") %>%
+  kable_styling(latex_options = "hold_position")
 
 ```
 
