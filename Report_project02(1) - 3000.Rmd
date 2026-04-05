@@ -198,33 +198,21 @@ y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 t_i
 + \varepsilon_i, \quad \varepsilon_i \sim N(0, \sigma^2)
 $$
 
-M1 extends the baseline model in three ways, each motivated by clear limitations 
-identified in M0.
+M1 extends M0 in three ways. First, month is switched from a numeric 
+predictor to a factor, giving each month its own intercept. Figure 
+\@ref(fig:fig-boxplotmonth) shows that the month--demand relationship 
+is not monotonic, so forcing a single slope as M0 does is inappropriate. 
+Second, day of week is added as a factor — the weekend binary in M0 
+groups Saturday and Sunday together, but Figure 
+\@ref(fig:fig-boxplotdow) shows these days behave differently, so a 
+full factor allows each day its own effect. Third, a linear trend term 
+$t_i$ is added to capture the drift in underlying demand visible in 
+Figure \@ref(fig:fig-ts). Both factors use dummy variable encoding with 
+January and Sunday as reference categories, so $\gamma_m$ and $\delta_d$ 
+represent differences relative to these baselines, and the sums begin 
+at $m = 2$ and $d = 2$ as the first level of each factor is absorbed 
+into $\beta_0$.
 
-First, month is switched from a numeric predictor to a factor, giving each month 
-its own intercept. The boxplot in Figure 2 shows that the relationship between month 
-and demand is not monotonic — counts peak in summer and fall in winter but do not 
-follow a straight line across month numbers 1 to 12, so forcing a single slope as 
-M0 does is inappropriate.
-
-Second, day of week is added as a factor. The boxplot in Figure 3 showed a clear 
-difference between weekdays and weekends, but the weekend binary in M0 groups 
-Saturday and Sunday together. Since Saturday behaves differently from Sunday — 
-likely reflecting a mix of leisure and residual commuting trips — a full factor 
-allows each day to have its own effect.
-
-Third, a linear trend term $t_i$ is added, defined as the integer number of days 
-since 1 January 2020. The time series in Figure 1 suggests that underlying demand 
-has shifted over the 2020--2025 period, and without a trend term the model has no 
-way to capture this drift, potentially biasing all other coefficient estimates.
-
-Both month and day of week enter as factors using dummy variable encoding, 
-with January and Sunday as the respective reference categories. The 
-coefficients $\gamma_m$ and $\delta_d$ therefore represent the difference 
-in expected daily count relative to January and Sunday respectively, 
-holding all other predictors fixed. This also explains why both sums begin 
-at $m = 2$ and $d = 2$ — the first level of each factor is absorbed into 
-the intercept $\beta_0$.
 
 **Diagnostics of M1**
 
@@ -246,22 +234,13 @@ y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{1i}^2 + \beta_3 x_{2i} + \beta_4 t_i
 + \varepsilon_i, \quad \varepsilon_i \sim N(0, \sigma^2)
 $$
 
-M2 extends M1 by replacing the linear temperature term with a quadratic, adding 
-both $x_{1i}$ and $x_{1i}^2$ as predictors. The scatter plot in Figure 4 shows 
-that the relationship between temperature and cycling demand flattens out above 
-around 10°C rather than increasing at a constant rate, which a linear term cannot 
-capture. Including the quadratic term allows the model to reflect this diminishing 
-sensitivity to temperature at higher values, which is also physically plausible ---
-once conditions are warm enough, further increases in temperature have a smaller 
-effect on whether people choose to cycle.
+M2 extends M1 by replacing the linear temperature term with a quadratic, adding both $x_{1i}$ and $x_{1i}^2$ as predictors. Figure \@ref(fig:fig-scattertemp) shows that the temperature--demand relationship flattens above around 10°C, which a linear term cannot capture. The quadratic term allows the model to reflect this diminishing sensitivity, which is also physically plausible — once conditions are warm enough, further temperature increases have a smaller effect on cycling behaviour.
 
 ```{r fig-m2diagnostics,echo=FALSE,fig.cap="Diagnostics for M2",fig.width=7, fig.height=4}
 m2_resid_fitted_plot+m2_qq_plot
 ```
 
-M2 shows marginal improvement over M1 — the residuals versus fitted plot appears 
-slightly more evenly spread, suggesting the quadratic temperature term has captured some additional structure in the data. The lower tail of the QQ plot also follows the reference line more closely than in M1. However, the right tail remains heavily skewed, with standardized residuals exceeding 7 at the upper end, worse than M1. Heteroscedasticity also persists, with residual spread still growing at higher fitted values. The consistently heavy right tail across M0, M1, and M2 strongly 
-suggests that a Gaussian model is fundamentally inappropriate for these count data, and motivates the log transformation of the response in M3.
+M2 shows marginal improvement over M1 — residual spread is slightly more even and the lower QQ tail follows the reference line more closely. However, the right tail worsens, with standardised residuals exceeding 7, and heteroscedasticity persists. The consistently heavy right tail across M0, M1, and M2 suggests a Gaussian model is fundamentally inappropriate for the given data, motivating the log transformation in M3.
 
 
 ## Model M3: Log-Transformed Response
@@ -276,22 +255,15 @@ $$
 + \varepsilon_i, \quad \varepsilon_i \sim N(0, \sigma^2)
 $$
 
-M3 keeps all predictors from M2 but log-transforms the response variable, fitting 
-$\log(\text{count}_i + 1)$ rather than $\text{count}_i$ directly. The diagnostic 
-plots for M0, M1, and M2 consistently showed two problems: a heavy right tail in 
-the QQ plot and residual spread increasing with fitted values. Both are classic 
-symptoms of right-skewed, non-negative count data being modelled with a Gaussian 
-assumption. The log transformation directly addresses this --- by compressing large 
-values, it reduces skewness in the response and stabilises variance, making the 
-Gaussian assumption more plausible. The $+1$ is added before taking the log to 
-handle any zero counts, since $\log(0)$ is undefined.
+M3 keeps all predictors from M2 but log-transforms the response, fitting $\log(\text{count}_i + 1)$ rather than $\text{count}_i$ directly. The persistent right-skew and heteroscedasticity seen across M0--M2 are classic symptoms of modelling non-negative count data with a Gaussian assumption.The log transformation addresses this by compressing large values, reducing 
+skewness and stabilising variance. The $+1$ ensures the transformation is defined if any zero counts are present.
 
 
 ```{r fig-m3diagnostics,echo=FALSE,fig.cap="Diagnostics for M3",fig.width=7, fig.height=4}
 m3_resid_fitted_plot + m3_qq_plot
 ```
 
-The diagnostic plots for M3 show a marked improvement over all previous models. The residuals versus fitted plot no longer shows the growing spread seen in M0 through M2 — residuals are now scattered fairly evenly around zero across the full range of fitted values, suggesting the log transformation has largely resolved the heteroscedasticity. The QQ plot is dramatically better, with standardised residuals following the reference line closely across almost the entire range, compared to the severe right tail deviation seen in M2 where residuals exceeded 7. The tails still deviate slightly at both ends, indicating some remaining non-normality, but this is a substantial improvement. Overall, the log transformation successfully addressed the two core issues identified in M0 through M2 — right skew and non-constant variance — making the Gaussian assumption considerably more plausible for M3 than for any of the earlier models.
+The diagnostic plots for M3 show a marked improvement — residuals are now scattered evenly around zero and the QQ plot follows the reference line closely across almost its entire range, compared to the severe right tail deviation in M2. Some deviation remains at both tails, indicating slight remaining non-normality, but the Gaussian assumption is considerably more plausible for M3 than any earlier model.
 
 
 
@@ -299,38 +271,23 @@ The diagnostic plots for M3 show a marked improvement over all previous models. 
 ## Statistical Performance
 
 
-```{r, echo=FALSE}
+```{r tab-cv1, echo=FALSE}
 kable(cv_table1,
       caption = "Leave-one-year-out cross-validation scores for models M0--M3. Lower is better for all scores.", booktabs = TRUE,
       linesep = "") %>%
   kable_styling(latex_options = "hold_position")
 ```
 
-Table 3 shows the CV scores across all four models. For RMSE and MAE, performance improves consistently from M0 to M3, with M3 achieving the 
-lowest values of 4531 and 3598 respectively, suggesting that each additional modelling step improves point prediction accuracy. However 
-the pattern is less clear for DS and IS. M0 actually achieves the lowest DS score (18.0), while M3 has the highest (18.5). For IS, M3 is notably 
-worse than M0-M2. This disagreement arises because back-transforming M3's log-scale predictions to the count scale inflates predictive variance via 
-the delta method, penalising DS and IS which are sensitive to uncertainty estimates. Given that M3 achieves the best RMSE and MAE and its diagnostic plots show substantially improved residual normality. M3 is therefore selected as the final model. While DS and IS are inflated by the back-transformation, M3 achieves the lowest RMSE and MAE and is the only model whose diagnostic plots satisfy the normality and constant variance assumptions, making it the most statistically valid choice for both prediction and inference.
+Table \@ref(tab:tab-cv1) shows the CV scores across all four models. RMSE and MAE improve consistently from M0 to M3, with M3 achieving the lowest values of 4531 and 3598 respectively. However, M0 achieves the lowest DS (18.0) and M3 the highest (18.5), with M3 also notably worse on IS. This disagreement arises because back-transforming M3's log-scale predictions inflates predictive variance via the delta method, penalising DS and IS. M3 is nonetheless selected as the final model — it achieves the best RMSE and MAE and is the only model whose diagnostic plots satisfy the normality and constant variance assumptions.
 
 
-```{r, echo=FALSE}
+```{r tab-cv2, echo=FALSE}
 kable(cv_table2,
       caption = "Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE,format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
 
-Table 4 indicates that the final model's performance varies noticeably 
-throughout the year. RMSE is lowest in July (3485.3), with June (3909.0) 
-and February (3973.2) also showing relatively strong performance, 
-indicating that cycling demand is predicted most accurately in summer 
-and mid-winter months. In contrast, RMSE is highest in April (6485.7) 
-and March (5886.6), suggesting that demand is hardest to predict in 
-early spring. The DS score tells a similar story — July achieves the 
-best calibration (17.52) while December is notably worse (22.27), 
-indicating that the model struggles to reliably quantify uncertainty 
-around the Christmas period. Overall, while M3 performs well on average, 
-its predictive reliability is not uniform across the calendar year, with 
-early spring and December presenting the greatest challenge. 
+Table \@ref(tab:tab-cv2) shows that predictive performance varies across the year. RMSE is lowest in July (3485.3) and highest in April (6485.7) and March (5886.6), suggesting early spring is hardest to predict. December has the worst DS (0.92), indicating poorer uncertainty calibration around that period. Early spring and December therefore present the greatest challenge for the final model.
 
 <!--
 Required content:
@@ -344,34 +301,26 @@ Required content:
 
 ### Temperature effects and nonlinearity
 
-This subsection compares three nonlinear temperature specifications based on mean, minimum, and maximum daily temperature for our M2 model. Our ambition is to determine which temperature measure gives the best predictive performance. We then analyse the marginal effects of the fitted nonlinear at two representative chosen temperature variables, 5°C and 15°C in this case.
-
-
-```{r, echo=FALSE}
+```{r tab-tempcompare, echo=FALSE}
 kable(temp_compare_table,
       caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE,format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
 
 
-Between the three nonlinear temperature specification we can see the model utilizing temp_min performed the best as it had the lowest RMSE score of 4574.7, DS score of 18.06 and IS score of 25010.3. However, the DS score was effectively identical between all three only different by 0.03 at most.This indicates that, within this model class, temp_min provides the strongest predictive performance.
+Table \@ref(tab:tab-tempcompare) compares three nonlinear temperature specifications. `temp_min` performs best with the lowest RMSE (4574.7) 
+and IS (25010.3), though DS is effectively identical across all three (difference of 0.03 at most). This is physically plausible — commuters are more likely to base cycling decisions on the coldest conditions of the day, making minimum temperature the most behaviourally relevant measure.
 
-This is a realistic conclusion to make. Majority of commuters will likely check their weather apps and decide whether they will bike based off the coldest conditions during the day. This is particularly true for morning commuters as this is typically the coldest period of time as well. Minimum daily temperature may therefore be more relevant than average or maximum temperature in determining whether people choose to cycle at all.
-
-```{r, echo=FALSE}
+```{r tab-tempeffect, echo=FALSE}
 kable(temp_effect_table,
       caption = "Estimated marginal effect of a 1°C increase using the chosen temperature variable.", booktabs = TRUE,format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```  
 
-For the chosen model, the estimated effect of temperature depends on the temperature level because the model includes a quadratic term. At 5°C, a 1°C increase is associated with approximately 53.9 additional cyclists per day. At 15°C, the fitted model implies that a 1°C increase is associated with approximately 250.2 fewer cyclists per day.
-
-The positive marginal effect at 5°C is intuitive, as slightly milder cold days are likely to encourage more cycling. The negative marginal effect at 15°C should be interpreted more cautiously. Instead of implying that warmer weather necessarily reduces cycling, as 15°C is a pleasant biking temperature, and would intuitively imply either an increase rather or a slight decrease over a significant decrease. This therefore more likely reflects the curvature imposed by the quadratic specification and the fact that the relationship appears to flatten at higher temperatures. Because the model does not include a temperature × season interaction, this temperature effect is assumed to be the same across the year, which is a limitation if weather sensitivity differs between seasons.
+Table \@ref(tab:tab-tempeffect) shows the marginal effects for the chosen specification. At 5°C, a 1°C increase is associated with approximately 53.9 additional cyclists per day. At 15°C, the model implies a decrease of 250.2 cyclists per day, though this more likely reflects the flattening curvature of the quadratic term at higher temperatures than a genuine reduction in cycling. As the model excludes a temperature $\times$ season interaction, this effect is assumed constant across the year.
 
 
-
-
-**5.2 Seasonal prediction accuracy**
+### Seasonal prediction accuracy
 
 <!--
 One subsection per planning question (5.1-5.5 from the assignment brief).
@@ -385,40 +334,38 @@ As discussed in the Statistical Performance section, Table 4 shows that the pred
 
 A plausible transport-planning interpretation is that cycling demand is easier to predict in summer because behaviour is more stable and weather conditions are more consistently favourable. In winter, demand may also be somewhat easier to model for a different reason: for many people, conditions are already too cold or unpleasant for cycling, so small changes in temperature are less likely to affect the decision to bike at all. This reduces behavioural variation and makes demand more predictable. By contrast, early spring is likely to be harder to predict because it is a transition period. As temperatures begin to improve, people may differ much more in the point at which they feel conditions are “good enough” to start cycling again. This creates a mental and behavioural threshold that varies across individuals, making aggregate demand more sensitive to small changes in weather and therefore harder to model accurately. The relatively poor performance in March, April, and December is therefore likely to reflect both model limitations and data limitations: the model omits factors such as rainfall, wind, holidays, and special events, while the available predictors may not fully explain abrupt seasonal changes in cycling behavior.
 
-**5.3 Long-term trend and extrapolation**
-
-This subsection examines the long-term trend in cycling demand implied by the fitted models and considers what that trend means for transport planning. First the estimated annual change is reported, and then its statistical significance, followed by an assessment of whether the trend is robust across M1, M2, and M3, and finally checks whether the COVID period materially affects the estimate, and finally uses M3 to extrapolate demand forward to 2035 under fixed summer weekday conditions.
+### Long-term trend and extrapolation
 
 ```{r tab-trendcoefs, echo=FALSE}
 kable(trend_coefs,
-      caption = "Trend coefficients from models M1--M3.", booktabs = TRUE,format = "latex") %>%
+      caption = "Trend coefficients from models M1--M3.", booktabs = TRUE, format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
 
 ```{r tab-trendsig, echo=FALSE}
 kable(trend_significance,
-      caption = "Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE,format = "latex") %>%
+      caption = "Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE, format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
-
-
 
 ```{r tab-growthrate, echo=FALSE}
 kable(growth_rate_table,
-      caption = "Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE,format = "latex") %>%
+      caption = "Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE, format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
-Both Table \@ref(tab:tab-trendcoefs) and \@ref(tab:tab-trendsig) show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
 
-The estimated trend is relatively consistent across M1, M2, and M3, where all three models imply an approximate decline of 680–790 cyclists per year as seen in Table \@ref(tab:tab-growthrate). This suggests that the broad direction and magnitude of the trend are reasonably robust to modelling choices. This consistency is useful for planning because it indicates that the conclusion of declining demand is not being driven by one particular specification alone. At the same time, the slightly more negative estimate in M3 shows that allowing for skewness and non-constant variance can shift the implied rate of change somewhat, even if the overall conclusion remains the same.
+Tables \@ref(tab:tab-trendcoefs) and \@ref(tab:tab-trendsig) show that all three models estimate a statistically significant negative trend. 
+M1 implies 692 fewer cyclists per year, M2 683, and M3 786, corresponding to annual percentage changes of -5.66%, -5.48%, and -6.82% relative to the predicted count on 1 January 2020. Table \@ref(tab:tab-growthrate) shows the trend is consistent across models, though the slightly more 
+negative estimate in M3 suggests skewness and non-constant variance shift the implied rate somewhat.
 
 ```{r tab-trendcomp, echo=FALSE}
 kable(trend_comparison,
-      caption = "Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,format = "latex") %>%
+      caption = "Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE, format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
 
-Table \@ref(tab:tab-trendcomp) suggests that the COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
+Table \@ref(tab:tab-trendcomp) shows that including a COVID indicator shifts the M3 trend from -2.152 to -2.904 cyclists/day (-786 to -1060 
+per year), so the trend should not be read as evidence of structural decline.
 
 ```{r fig-extrapolation, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Extrapolation of Cycling Demand"}
 extrapolation_plot
@@ -433,7 +380,7 @@ The extrapolation based on M3 projects decline in Figure \@ref(fig:fig-extrapola
 
 This kind of long-run extrapolation should be treated with caution for at least two reasons. First, the fitted linear trend is estimated over a short period, specifically the COVID-19 disruption, where many were forced to stay indoors, hence it may not represent the true long-term path of cycling demand. Secondly, the projection holds weather and seasonal conditions fixed and ignores other factors that could substantially alter future demand. Notably as infrastructure investment, policy changes, fuel prices, or changes in population and commuting patterns. For these reasons, the extrapolation is useful as a simple model-based scenario, but not as a reliable long-term forecast.
 
-**5.4 Identifying a poorly-fit period**
+### Identifying a poorly-fit period
 
 This subsection examines the residuals of the final model over time in order to identify a specific period in which the model performs notably poorly. The aim is to determine whether the model systematically over- or under-predicts during that period, and to consider what that implies from both a statistical and transport-planning perspective.
 
