@@ -103,7 +103,7 @@ Figure \@ref(fig:fig-boxplotdow) suggests that cycling demand is higher on weekd
 eda_temp_scatter
 ```
 
-Figure 4 shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
+Figure \@ref(fig:fig-scattertemp) shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
 
 **Showing relation between count and mean temperature during COVID and post COVID period**
 
@@ -218,6 +218,14 @@ since 1 January 2020. The time series in Figure 1 suggests that underlying deman
 has shifted over the 2020--2025 period, and without a trend term the model has no 
 way to capture this drift, potentially biasing all other coefficient estimates.
 
+Both month and day of week enter as factors using dummy variable encoding, 
+with January and Sunday as the respective reference categories. The 
+coefficients $\gamma_m$ and $\delta_d$ therefore represent the difference 
+in expected daily count relative to January and Sunday respectively, 
+holding all other predictors fixed. This also explains why both sums begin 
+at $m = 2$ and $d = 2$ — the first level of each factor is absorbed into 
+the intercept $\beta_0$.
+
 **Diagnostics of M1**
 
 ```{r fig-m1diagnostics,echo=FALSE,fig.cap="Diagnostics for M1",fig.width=7, fig.height=4}
@@ -294,7 +302,8 @@ The diagnostic plots for M3 show a marked improvement over all previous models. 
 ```{r, echo=FALSE}
 kable(cv_table1,
       caption = "Leave-one-year-out cross-validation scores for models M0--M3. Lower is better for all scores.", booktabs = TRUE,
-      linesep = "")
+      linesep = "") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 Table 3 shows the CV scores across all four models. For RMSE and MAE, performance improves consistently from M0 to M3, with M3 achieving the 
@@ -380,13 +389,13 @@ A plausible transport-planning interpretation is that cycling demand is easier t
 
 This subsection examines the long-term trend in cycling demand implied by the fitted models and considers what that trend means for transport planning. First the estimated annual change is reported, and then its statistical significance, followed by an assessment of whether the trend is robust across M1, M2, and M3, and finally checks whether the COVID period materially affects the estimate, and finally uses M3 to extrapolate demand forward to 2035 under fixed summer weekday conditions.
 
-```{r, echo=FALSE}
+```{r tab-trendcoefs, echo=FALSE}
 kable(trend_coefs,
       caption = "Trend coefficients from models M1--M3.", booktabs = TRUE,
       linesep = "")
 ```
 
-```{r, echo=FALSE}
+```{r tab-trendsig, echo=FALSE}
 kable(trend_significance,
       caption = "Statistical significance of the trend coefficient in models M1--M3", booktabs = TRUE,
       linesep = "")
@@ -394,33 +403,33 @@ kable(trend_significance,
 
 
 
-```{r, echo=FALSE}
+```{r tab-growthrate, echo=FALSE}
 kable(growth_rate_table,
       caption = "Annual growth rate expressed relative to the predicted count on 1 January 2020.", booktabs = TRUE,
       linesep = "")
 ```
-Table 3 and the significance table show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
+Both Table \@ref(tab:tab-trendcoefs) and \@ref(tab:tab-trendsig) show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
 
-The estimated trend is relatively consistent across M1, M2, and M3. All three models imply an approximate decline of 680–790 cyclists per year. This suggests that the broad direction and magnitude of the trend are reasonably robust to modelling choices. This consistency is useful for planning because it indicates that the conclusion of declining demand is not being driven by one particular specification alone. At the same time, the slightly more negative estimate in M3 shows that allowing for skewness and non-constant variance can shift the implied rate of change somewhat, even if the overall conclusion remains the same.
+The estimated trend is relatively consistent across M1, M2, and M3, where all three models imply an approximate decline of 680–790 cyclists per year as seen in table \@ref(tab:tab-growthrate). This suggests that the broad direction and magnitude of the trend are reasonably robust to modelling choices. This consistency is useful for planning because it indicates that the conclusion of declining demand is not being driven by one particular specification alone. At the same time, the slightly more negative estimate in M3 shows that allowing for skewness and non-constant variance can shift the implied rate of change somewhat, even if the overall conclusion remains the same.
 
-```{r, echo=FALSE}
+```{r tab-trendcomp, echo=FALSE}
 kable(trend_comparison,
-      caption = "Table 6. Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,
+      caption = "Comparison of M3 trend estimates with and without a COVID indicator.", booktabs = TRUE,
       linesep = "")
 ```
 
-The COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
+Table \@ref(tab:tab-trendcomp) suggests that the COVID period seems to be of significance for the interpretation of the long-term trend. With the COVID indicator for model M3, the estimated daily change becomes more negative, shifting from approximately -2.152 cyclists/day to -2.904 cyclists/day. This corresponds to an annual change from about -786 to -1060 cyclists/year, suggesting that the simple linear trend in M3 is partly absorbing the unusual behaviour of the pandemic years. In other words, a single linear trend fitted across 2020–2025 may be too basic, blending together the COVID dip, subsequent recovery, and later pattern into one average slope. This means the trend should be interpreted cautiously rather than treated as a stable structural decline.
 
 ```{r fig-extrapolation, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Extrapolation of Cycling Demand"}
 extrapolation_plot
 ```
 
-```{r, echo=FALSE}
+```{r tab-threshold, echo=FALSE}
 kable(threshold_15000,
-      caption = "Table 7. Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,
+      caption = "Earliest projected date at which predicted summer weekday demand exceeds 15,000 cyclists/day.", booktabs = TRUE,
       linesep = "")
 ```
-The extrapolation based on M3 projects decline, rather than an increase, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020. It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
+The extrapolation based on M3 projects decline in Figure \@ref(fig:fig-extrapolation), rather than an increase, summer weekday cycling demand through to 2035. Using the fitted model we can see that the predicted demand is already above the 15,000 cyclists/day threshold at the start of the period, starting at an estimated value of 15,579 on 1 January 2020 as seen in Table \@ref(tab:tab-threshold). It then falls steadily, where in 15 years, the estimated value for cyclists/day is 5,300. This means that, at the current fitted rate, the model does not predict future growth toward the threshold; instead, it suggests that demand moves away from it over time.
 
 This kind of long-run extrapolation should be treated with caution for at least two reasons. First, the fitted linear trend is estimated over a short period, specifically the COVID-19 disruption, where many were forced to stay indoors, hence it may not represent the true long-term path of cycling demand. Secondly, the projection holds weather and seasonal conditions fixed and ignores other factors that could substantially alter future demand. Notably as infrastructure investment, policy changes, fuel prices, or changes in population and commuting patterns. For these reasons, the extrapolation is useful as a simple model-based scenario, but not as a reliable long-term forecast.
 
@@ -436,7 +445,7 @@ Figure \@ref(fig:fig-restime) identifies periods where the final model appears t
 
 ```{r, echo=FALSE}
 kable(head(poor_period_table, 10),
-      caption = "Table 8. Months with the largest RMSE under the final model.", booktabs = TRUE,
+      caption = "Months with the largest RMSE under the final model.", booktabs = TRUE,
       linesep = "")
 
 ```
@@ -474,50 +483,18 @@ This plot is useful because it highlights regional bias rather than just overall
 Do not introduce new results here.
 -->
 
-Of the four models fitted, M3 comes closest to satisfying the standard linear 
-regression assumptions, though none fully does. M0 through M2 all show clear 
-heteroscedasticity and a heavy right tail in the QQ plot, which are 
-unsurprising given that daily cyclist counts are non-negative and right-skewed 
-by nature. The log transformation in M3 largely addresses both problems — 
-residuals are much more evenly spread and the QQ plot follows the reference 
-line well across most of its range — but some deviation remains at both tails, 
-so the Gaussian assumption should still be interpreted with some caution even 
-for M3.
+Of the four models fitted, M3 comes closest to satisfying the standard linear regression assumptions, though none fully does. M0 through M2 all show indications of heteroscedasticity and a heavy right tail in the QQ plot, which are unsurprising given that daily cyclist counts are non-negative and right-skewed 
+by nature. The log transformation in M3 largely addresses both problems — residuals are much more evenly spread and the QQ plot follows the reference line well across most of its range — but some deviation remains at both tails, so the Gaussian assumption should still be interpreted with some caution even for M3.
 
-The main limitation of the data is that it only includes temperature and 
-calendar variables. Rainfall and wind in particular are likely to affect 
-whether people choose to cycle on a given day, yet neither is available in the 
-dataset. This probably explains why the model struggles most in March and 
-April, and why it consistently under-predicted demand during spring and summer 
-2022 — periods where something beyond temperature and seasonality was clearly 
-driving behaviour. A separate issue is that the response variable pools counts 
-across all monitoring stations, so the model cannot distinguish between 
-commuter routes and leisure routes, which likely behave quite differently.
+The main limitation of the data is that it only includes temperature and calendar variables. Rainfall and wind in particular are likely to affect whether people choose to cycle on a given day, yet neither is available in the dataset. This probably explains why the model struggles most in March and April, and why it consistently under-predicted demand during spring and summer 2022 — periods where something beyond temperature and seasonality was clearly 
+driving behaviour. A separate issue is that the response variable pools counts across all monitoring stations, so the model cannot distinguish between commuter routes and leisure routes, which likely behave quite differently.
 
-The long-term trend is also harder to interpret than it first appears. Fitting 
-a single linear trend across 2020--2025 forces the model to average over the 
-COVID dip, the recovery period, and the later years all at once. As the COVID 
-indicator comparison in Section 5.3 shows, this matters — the trend estimate 
-shifts noticeably depending on how the pandemic period is treated, so the 
-negative trend should not be read as straightforward evidence that cycling in 
-Edinburgh is in structural decline.
+The long-term trend is also harder to interpret than it first appears. Fitting a single linear trend across 2020--2025 forces the model to average over the COVID dip, the recovery period, and the later years all at once. As the COVID indicator comparison in Section 5.3 shows, this matters — the trend estimate shifts noticeably depending on how the pandemic period is treated, so the negative trend should not be read as straightforward evidence that cycling in Edinburgh is in structural decline.
 
-The most practical improvements would be to add precipitation and wind speed 
-as predictors, and to replace the linear trend with something more flexible 
-such as a piecewise specification that separates the pandemic period from the 
-rest. A Poisson or negative binomial model would also be a more natural fit 
-for count data and would avoid the back-transformation issue that inflates the 
-DS and IS scores for M3. Longer term, disaggregating to individual monitoring 
-stations would allow more targeted conclusions about specific routes and 
-corridors.
+The most practical improvements would be to add precipitation and wind speed as predictors, and to replace the linear trend with something more flexible such as a piecewise specification that separates the pandemic period from the rest. A Poisson or negative binomial model would also be a more natural fit for count data and would avoid the back-transformation issue that inflates the DS and IS scores for M3. Longer term, disaggregating to individual monitoring 
+stations would allow more targeted conclusions about specific routes and corridors.
 
-Finally, it is worth being cautious about how far these findings extend beyond 
-Edinburgh. The temperature effects, commuter patterns, and trend estimate 
-reflect a specific city during an unusual five-year period. A city with a 
-warmer climate or a different cycling culture might show very different 
-seasonal patterns and temperature sensitivity. Even for Edinburgh, the short 
-observation window means the trend extrapolation to 2035 should be treated as 
-an illustrative scenario rather than a forecast — particularly given how much 
+Finally, it is worth being cautious about how far these findings extend beyond Edinburgh. The temperature effects, commuter patterns, and trend estimate reflect a specific city during an unusual five-year period. A city with a warmer climate or a different cycling culture might show very different seasonal patterns and temperature sensitivity. Even for Edinburgh, the short observation window means the trend extrapolation to 2035 should be treated as an illustrative scenario rather than a forecast — particularly given how much 
 the pandemic distorts the earlier part of the data.
 
 # Appendix: Code
@@ -525,7 +502,7 @@ the pandemic distorts the earlier part of the data.
 
 All analysis code is in `code.R` and is reproduced below.
 
-```{r print-code, echo=TRUE, eval=FALSE, code=readLines("code.R")}
+```{r print-code, echo=TRUE, eval=FALSE, code=readLines("Proj2code.R")}
 ```
 
 
