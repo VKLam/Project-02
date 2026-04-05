@@ -95,8 +95,8 @@ cv_results <- bind_rows(lapply(names(model_formulas), function(model_name) {
       
       # Back-transform to count scale
       mu_count    <- exp(mu_log) - 1
-      # sigma_count <- exp(mu_log) * sigma_log  # delta method
-      sigma_count <- sqrt((exp(sigma_log^2) - 1) * exp(2 * mu_log + sigma_log^2))
+      sigma_count <- exp(mu_log) * sigma_log  # delta method
+      #sigma_count <- sqrt((exp(sigma_log^2) - 1) * exp(2 * mu_log + sigma_log^2))
       
       y <- test_df$count
       
