@@ -247,22 +247,45 @@ m3_resid_fitted_plot + m3_qq_plot
 The diagnostic plots for M3 show a marked improvement over all previous models. The residuals versus fitted plot no longer shows the growing spread seen in M0 through M2 — residuals are now scattered fairly evenly around zero across the full range of fitted values, suggesting the log transformation has largely resolved the heteroscedasticity. The QQ plot is dramatically better, with standardised residuals following the reference line closely across almost the entire range, compared to the severe right tail deviation seen in M2 where residuals exceeded 7. The tails still deviate slightly at both ends, indicating some remaining non-normality, but this is a substantial improvement. Overall, the log transformation successfully addressed the two core issues identified in M0 through M2 — right skew and non-constant variance — making the Gaussian assumption considerably more plausible for M3 than for any of the earlier models.
 
 
+
 # Evaluation
 ## Statistical Performance
+
+Table 1
+
+\clearpage
 
 ```{r, echo=FALSE}
 kable(cv_table1,
       caption = "Table 1. Leave-one-year-out cross-validation scores for models M0--M3. Lower is better for all scores.", booktabs = TRUE,
       linesep = "")
 ```
-Table 1 shows a clear evolution in predictive performance as the models become more flexible. M0 performs worst across all four metrics. This indicates that a baseline model with numeric month and no trend or day-of-week factor is too limited. M1 improves on M0 given it allows separate month and day-of-week effects and adding a long-term trend. M2 gives a small further improvement by allowing a nonlinear temperature effect. M3 performs best on all four cross-validation measures, with the lowest RMSE, MAE, DS, and IS. This is natural as lower values are better for all four scores, and as all four metrics agree M3 is selected as the final model.
+
+Table 1 shows the CV scores across all four models. For RMSE and MAE, performance improves consistently from M0 to M3, with M3 achieving the 
+lowest values of 4531 and 3598 respectively, suggesting that each additional modelling step improves point prediction accuracy. However 
+the pattern is less clear for DS and IS. M0 actually achieves the lowest DS score (18.0), while M3 has the highest (18.5). For IS, M3 is notably 
+worse than M0-M2. This disagreement arises because back-transforming M3's log-scale predictions to the count scale inflates predictive variance via 
+the delta method, penalising DS and IS which are sensitive to uncertainty estimates. Given that M3 achieves the best RMSE and MAE and its diagnostic plots show substantially improved residual normality. M3 is therefore selected as the final model. While DS and IS are inflated by the back-transformation, M3 achieves the lowest RMSE and MAE and is the only model whose diagnostic plots satisfy the normality and constant variance assumptions, making it the most statistically valid choice for both prediction and inference.
+
 
 ```{r, echo=FALSE}
 kable(cv_table2,
       caption = "Table 2. Monthly cross-validated RMSE and Dawid--Sebastiani score for the final model M3.", booktabs = TRUE,format = "latex") %>%
   kable_styling(latex_options = "hold_position")
 ```
-Table 2 indicates that the final model performance varies noticeably throughout the year. RMSE is lowest in July (3485.3), with June (3909.0) and February (3973.2) also showing relatively strong performance, indicating that cyclist demand is predicted most accurately in these months. In contrast, RMSE is highest in April (6485.7) and March (5886.6), suggesting that demand is hardest to predict in early spring. The Dawid–Sebastiani score is also strongest in summer, reaching its lowest value in July (-1.24) and remaining low in June (-1.08), but it worsens sharply in December (0.92), indicating poorer calibration of the predictive distribution at the start of winter. In essence, from Table 2 we can conclude that although M3 performs the best overall, its predictive reliability is not uniform accross the calendar year, where it encounter the most difficulty in early spring and December. 
+
+Table 2 indicates that the final model's performance varies noticeably 
+throughout the year. RMSE is lowest in July (3485.3), with June (3909.0) 
+and February (3973.2) also showing relatively strong performance, 
+indicating that cycling demand is predicted most accurately in summer 
+and mid-winter months. In contrast, RMSE is highest in April (6485.7) 
+and March (5886.6), suggesting that demand is hardest to predict in 
+early spring. The DS score tells a similar story — July achieves the 
+best calibration (17.52) while December is notably worse (22.27), 
+indicating that the model struggles to reliably quantify uncertainty 
+around the Christmas period. Overall, while M3 performs well on average, 
+its predictive reliability is not uniform across the calendar year, with 
+early spring and December presenting the greatest challenge. 
 
 <!--
 Required content:
@@ -278,12 +301,15 @@ Required content:
 
 This subsection compares three nonlinear temperature specifications based on mean, minimum, and maximum daily temperature for our M2 model. Our ambition is to determine which temperature measure gives the best predictive performance. We then analyse the marginal effects of the fitted nonlinear at two representitive chosen temperature variables, 5°C and 15°C in this case.
 
+
 ```{r, echo=FALSE}
 kable(temp_compare_table,
       caption = "Comparison of nonlinear temperature specifications in the M2 model family.", booktabs = TRUE,
       linesep = "")
 ```
-Between the three nonlinear temperature specification we can see the model utilizing temp_min performed the best as it had the lowest RMSE score of 4574.7, DS score og 18.06 and IS score of 25010.3. However, the DS score was effectiveley identical between al three only different by 0.03 at most.This indicates that, within this model class, temp_min provides the strongest predictive performance.
+
+
+Between the three nonlinear temperature specification we can see the model utilizing temp_min performed the best as it had the lowest RMSE score of 4574.7, DS score og 18.06 and IS score of 25010.3. However, the DS score was effectively identical between al three only different by 0.03 at most.This indicates that, within this model class, temp_min provides the strongest predictive performance.
 
 This is a realistic conclusion to make. Majority of commuters will likely check their weather apps and decide whether they will bike based off the coldest conditions during the day. This is particularly true for morning commuters as this is typically the coldest period of time as well. Minimum daily temperature may therefore be more relevant than average or maximum temperature in determining whether people choose to cycle at all.
 
@@ -297,14 +323,15 @@ For the chosen model, the estimated effect of temperature depends on the tempera
 
 The positive marginal effect at 5°C is intuitive, as slightly milder cold days are likely to encourage more cycling. The negative marginal effect at 15°C should be interpreted more cautiously. Instead of implying that warmer weather necessarily reduces cycling, as 15°C is a pleasant biking temperature, and would intuitively imply either an increase rather or a slight decrease over a significant decrease. This therefore more likely reflects the curvature imposed by the quadratic specification and the fact that the relationship appears to flatten at higher temperatures. Because the model does not include a temperature × season interaction, this temperature effect is assumed to be the same across the year, which is a limitation if weather sensitivity differs between seasons.
 
-### 5.2 Seasonal prediction accuracy
+
+
+
+**5.2 Seasonal prediction accuracy**
 
 <!--
 One subsection per planning question (5.1-5.5 from the assignment brief).
 Each must include mandatory fixed-format numbers and real-world interpretation.
 -->
-
-# Discussion and limitations
 
 The purpose of this subsection is to assess how reliably the final model predicts cycling demand across the calendar year. Using the monthly cross-validation results from Table 2, we identify which months are predicted best and worst and consider what this implies for transport planning in Edinburgh.
 
@@ -318,7 +345,7 @@ As discussed in the Statistical Performance section, Table 2 shows that the pred
 
 A plausible transport-planning interpretation is that cycling demand is easier to predict in summer because behaviour is more stable and weather conditions are more consistently favourable. In winter, demand may also be somewhat easier to model for a different reason: for many people, conditions are already too cold or unpleasant for cycling, so small changes in temperature are less likely to affect the decision to bike at all. This reduces behavioural variation and makes demand more predictable. By contrast, early spring is likely to be harder to predict because it is a transition period. As temperatures begin to improve, people may differ much more in the point at which they feel conditions are “good enough” to start cycling again. This creates a mental and behavioural threshold that varies across individuals, making aggregate demand more sensitive to small changes in weather and therefore harder to model accurately. The relatively poor performance in March, April, and December is therefore likely to reflect both model limitations and data limitations: the model omits factors such as rainfall, wind, holidays, and special events, while the available predictors may not fully explain abrupt seasonal changes in cycling behavior.
 
-### 5.3 Long-term trend and extrapolation
+**5.3 Long-term trend and extrapolation**
 
 This subsection examines the long-term trend in cycling demand implied by the fitted models and considers what that trend means for transport planning. First the estimated annual change is reported, and then its statistical significance, followed by an assessment of whether the trend is robust across M1, M2, and M3, and finally checks whether the COVID period materially affects the estimate, and finaly uses M3 to extrapolate demand forward to 2035 under fixed summer weekday conditions.
 
@@ -366,7 +393,7 @@ The extrapolation based on M3 projects decline, rather than an increase, summer 
 
 This kind of long-run extrapolation should be treated with caution for at least two reasons. First, the fitted linear trend is estimated over a short period, specfically the COVID-19 disruption, where many were forced to stay indoors, hence it may not represent the true long-term path of cycling demand. Secondly, the projection holds weather and seasonal conditions fixed and ignores other factors that could substantially alter future demand. Notably as infrastructure investment, policy changes, fuel prices, or changes in population and commuting patterns. For these reasons, the extrapolation is useful as a simple model-based scenario, but not as a reliable long-term forecast.
 
-### 5.4 Identifying a poorly-fit period
+**5.4 Identifying a poorly-fit period**
 
 This subsection examines the residuals of the final model over time in order to identify a specific period in which the model performs notably poorly. The aim is to determine whether the model systematically over- or under-predicts during that period, and to consider what that implies from both a statistical and transport-planning perspective.
 
@@ -392,11 +419,11 @@ This implies April 2022 was a period of unusually high cycling demand that is no
 
 From a transport-planning perspective, this reflect changes in travel behavior, especially if cycling demand temporarily increased because of favorable or unfavorable conditions. There was potentially a post-pandemic behavioural shifts, where increased free movement was taken advantage. On the other hand, there may have been external factors such as fuel prices. The Ukraine-Russia war started in Feb.2022 and had resulted in significant increases in the prices of crude oil. Statistically, the poor fit also reflects model limitations: the final model includes temperature, seasonality, day of week, and trend, but omits potentially important short-term drivers such as rainfall, wind, holidays, oil prices and special events. April 2022 therefore appears to be a period where both the data limitations and the model specification contribute to poor predictive performance.
 
-### 5.5 Original Diagnostic Plot
+**5.5 Original Diagnostic Plot**
 
 This subsection presents an original plot that is not a standard diagnostic, designed to reveal an interesting feature of the final model that is not visible from standard diagnostics plots. This plot tracks the monthly mean residual over time, showing whether the model systematically over- or under-predicts demand in different periods
 
-```{r prediction_bias, echo=FALSE,fig.width=7, fig.height=4, fig.cap="Monthly Mean Prediction Bias"}
+```{r predictionbias, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Monthly Mean Prediction Bias"}
 original_bias_plot
 ```
 
@@ -405,6 +432,9 @@ The plot shows the monthly mean residual of the final model over time. Positive 
 This plot is useful because it highlights regional bias rather than just overall error magnitude. Unlike RMSE or QQ plots, it shows when the model is persistently wrong in one direction, which is especially important for planning. A model that repeatedly under-predicts demand during certain periods may lead planners to underestimate pressure on cycling infrastructure, while persistent over-prediction could lead to over-allocation of resources.
 
 # Discussion and limitations
+
+
+
 
 <!--
 3-5 paragraphs covering:
