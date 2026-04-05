@@ -23,7 +23,9 @@ cycle_daily_df <- cycle_daily_df %>%
     month = factor(month, levels = 1:12, ordered = TRUE),
     dow = factor(dow, levels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"),
                  ordered = TRUE),
-    trend = as.integer(date - as.Date("2020-01-01"))
+    trend = as.integer(date - as.Date("2020-01-01")),
+    #is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
+    
   )
 
 cycle_cv_df <- cycle_daily_df %>%
@@ -37,7 +39,7 @@ model_formulas <- list(
   M2 = count ~ weekend + trend + factor(month) + factor(dow) +
     temp_mean + I(temp_mean^2),
   M3 = log(count + 1) ~ weekend + trend + factor(month) + factor(dow) +
-    temp_mean + I(temp_mean^2)
+    temp_mean + I(temp_mean^2) + is_covid
 )
 
 m0 <- lm(model_formulas[["M0"]], data = cycle_daily_df)
@@ -93,7 +95,8 @@ cv_results <- bind_rows(lapply(names(model_formulas), function(model_name) {
       
       # Back-transform to count scale
       mu_count    <- exp(mu_log) - 1
-      sigma_count <- exp(mu_log) * sigma_log  # delta method
+      # sigma_count <- exp(mu_log) * sigma_log  # delta method
+      sigma_count <- sqrt((exp(sigma_log^2) - 1) * exp(2 * mu_log + sigma_log^2))
       
       y <- test_df$count
       
@@ -206,14 +209,35 @@ score_month <- cv_month_data %>%
       (2 / 0.05) * pmax(lwr_M2 - count, 0) +
       (2 / 0.05) * pmax(count - upr_M2, 0),
     
-    mean_M3_count = exp(mean_M3) - 1,
-    se_M3 = (count - mean_M3_count)^2,
-    ds_M3 = (log(count + 1) - mean_M3)^2 / sd_M3^2 + 2 * log(sd_M3),
-    lwr_M3 = mean_M3 - qnorm(0.975) * sd_M3,
-    upr_M3 = mean_M3 + qnorm(0.975) * sd_M3,
-    is_M3 = (upr_M3 - lwr_M3) +
-      (2 / 0.05) * pmax(lwr_M3 - log(count + 1), 0) +
-      (2 / 0.05) * pmax(log(count + 1) - upr_M3, 0)
+    mean_M3_count    = exp(mean_M3) - 1,
+    sigma_count = exp(mean_M3) * sd_M3,
+    
+    se_M3  = (count - mean_M3_count)^2,
+    ds_M3  = (count - mean_M3_count)^2 / sigma_count^2 + 2 * log(sigma_count),
+    
+    lwr_M3 = exp(mean_M3 - qnorm(0.975) * sd_M3) - 1,
+    upr_M3 = exp(mean_M3 + qnorm(0.975) * sd_M3) - 1,
+    
+    is_M3  = (upr_M3 - lwr_M3) +
+      (2 / 0.05) * pmax(lwr_M3 - count, 0) +
+      (2 / 0.05) * pmax(count - upr_M3, 0)
+    
+    
+    #mean_M3_count = exp(mean_M3) - 1,
+    #se_M3 = (count - mean_M3_count)^2,
+    #ds_M3 = (log(count + 1) - mean_M3)^2 / sd_M3^2 + 2 * log(sd_M3),
+    #mu_count    = exp(mean_M3) - 1,
+    #sigma_count = exp(mean_M3) * sd_M3,
+    #ds_M3 = (count - mu_count)^2 / sigma_count^2 + 2 * log(sigma_count),
+    
+    #lwr_M3 = exp(mean_M3 - qnorm(0.975) * sd_M3) - 1,
+    #upr_M3 = exp(mean_M3 + qnorm(0.975) * sd_M3) - 1,
+    
+    #lwr_M3 = mean_M3 - qnorm(0.975) * sd_M3,
+    #upr_M3 = mean_M3 + qnorm(0.975) * sd_M3,
+    #is_M3 = (upr_M3 - lwr_M3) +
+      #(2 / 0.05) * pmax(lwr_M3 - log(count + 1), 0) +
+      #(2 / 0.05) * pmax(log(count + 1) - upr_M3, 0)
   )
 
 # Summarise scores by month
@@ -645,6 +669,7 @@ m3_covid <- lm(
 )
 
 start_pred_M3 <- exp(predict(m3, newdata = start_data)) - 1
+
 start_data <- cycle_daily_df %>% filter(date == as.Date("2020-01-01")) %>% slice(1)
 
 start_pred_M3_covid <- exp(predict(m3_covid, newdata = start_data)) - 1
@@ -672,7 +697,8 @@ future_dates <- data.frame(
                  ordered = TRUE),
     weekend = 0,
     temp_mean = mean(cycle_daily_df$temp_mean, na.rm = TRUE),
-    trend = as.integer(date - as.Date("2020-01-01"))
+    trend = as.integer(date - as.Date("2020-01-01")),
+    #is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
   )
 
 future_dates$pred_log <- predict(m3, newdata = future_dates)
