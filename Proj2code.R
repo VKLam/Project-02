@@ -39,7 +39,7 @@ model_formulas <- list(
   M2 = count ~ weekend + trend + factor(month) + factor(dow) +
     temp_mean + I(temp_mean^2),
   M3 = log(count + 1) ~ weekend + trend + factor(month) + factor(dow) +
-    temp_mean + I(temp_mean^2) + is_covid
+    temp_mean + I(temp_mean^2) #+ is_covid
 )
 
 m0 <- lm(model_formulas[["M0"]], data = cycle_daily_df)
