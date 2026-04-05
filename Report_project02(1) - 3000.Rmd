@@ -44,14 +44,10 @@ Edinburgh operates a network of automatic cycling counters at strategic location
 
 # Exploratory data analysis
 
-Three derived variables are created before modelling. First, month is converted 
-to an ordered factor with levels 1–12, ensuring plots display January to December 
-in the correct order. Second, day of week is re-specified with explicit levels 
-from Sunday to Saturday, overriding R's default alphabetical ordering. Third, 
-a numeric trend variable is derived as the integer number of days elapsed since 
-1 January 2020, so that trend = 0 corresponds to the start of the observation 
-period and increases by 1 for each subsequent day. This allows the model to 
-capture any linear drift in cycling demand over 2020–2025.
+Three derived variables are created before modelling: month as an ordered factor 
+(levels 1–12), day of week with explicit levels Sunday to Saturday, and trend as 
+integer days since 1 January 2020 to capture linear drift in cycling demand.
+
 
 
 <!--
@@ -68,19 +64,28 @@ Every figure must have a caption and be explicitly discussed in the text.
 kable(summary_stats,
       caption = "Summary statistics for daily cyclist count and temperature variables.",
       booktabs = TRUE,format = "latex",
-      linesep = "")
+      linesep = "") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
-Table 1 summarises the key numeric variables across the 2180 daily observations. Daily cyclist count average around 10,816 but with a large standard deviation of 4729 reflecting strong seasonal variation. The minimum and maximum count of 1,264 and 43,864 respectively confirm that demand varies dramatically across the year. Edinburgh's climate is characterized by mild but cool conditions, with mean daily temperatures averaging 9.7°C and ranging from -8.1°C to 23°C, typical for a Scottish city. The wide spread in temperature variables, ranging from -14°C to 31°C, suggests that weather conditions vary considerably across the observation period and are likely to play an important role in explaining day-to-day variation in cycling demand.
-
-
+Table 1 summarises the key numeric variables. Daily counts average 10,816 with a 
+standard deviation of 4,729, confirming strong seasonal variation — the range of 
+1,264 to 43,864 reflects dramatically different demand across the year. Mean 
+temperature averages 9.7°C and ranges from -8.1°C to 23°C, typical for Edinburgh, 
+with the full temperature spread of -14°C to 31°C suggesting weather will be an 
+important predictor of cycling demand.
 
 ```{r fig-ts, echo=FALSE, fig.cap=" Time series of daily cyclist counts in Edinburgh (2020–2025) with a smoother.",fig.width=7, fig.height=4,}
 eda_time_series_plot
 ```
 
-Figure \@ref(fig:fig-ts) shows the daily cyclist counts across the full observation period from 2020-2025, with a smoother overlaid to highlight the trend, filtering out day-to-day variability. We can see the obvious pattern that the daily count climbs every summer and fall back each winter, and this repeats every year. There is a visible dip around 2020-2021, which is unsurprising given the COVID-19 lockdowns during that period. After that, daily counts reach their highest levels around 2022-23. The drop at the end of the observation period coincides with the data ending in early 2026, making it difficult to distinguish a seasonal effect from a genuine trend change. Certain days stands out in count, especially one around 2022 that exceeds 40,000 cyclists a day, which probably reflects an unusually warm day.
-
+Figure \@ref(fig:fig-ts) shows daily cyclist counts from 2020 to 2025 with a smoother overlaid. 
+The seasonal pattern is clear — counts climb each summer and fall each winter 
+consistently across all years. A dip around 2020-2021 reflects COVID-19 lockdowns, 
+after which counts peak around 2022-23. One day around 2022 exceeds 40,000 cyclists, 
+likely an unusually warm day. The drop at the end coincides with the data ending in 
+early 2026, making it difficult to distinguish a seasonal effect from a genuine trend 
+change. 
 
 **Boxplots of count by month and by day of week **
 
@@ -112,9 +117,12 @@ Figure \@ref(fig:fig-scattertemp) shows a clear positive but non-linear relation
 eda_covid_temp_plot
 ```
 
- Figure \@ref(fig:fig-covidscatter) reveals an interesting and somewhat counter intuitive pattern — cycling counts during the COVID period (2020-2021) were actually higher at warmer temperatures compared to post-COVID years, with the red smoother sitting well 
-above the blue at temperatures above 10°C. This likely reflects that during the covid lockdowns, cycling shifted from commuting to recreational use, with people more willing to cycle on pleasant days but much less likely to cycle in cold or wet 
-conditions, explaining the steeper temperature sensitivity. At cold temperatures the pattern reverses, with post-COVID counts higher, consistent with commuters cycling regardless of weather. This difference in behaviour between the two periods suggests that a COVID indicator variable may improve model fit, and motivates its inclusion as a candidate extension in M3.
+ Figure \@ref(fig:fig-covidscatter) reveals a counterintuitive pattern — during COVID (2020-2021), counts 
+were higher at warmer temperatures than post-COVID, likely because lockdowns 
+shifted cycling from commuting to recreational use, making demand more 
+temperature-sensitive. At cold temperatures the pattern reverses, with post-COVID 
+counts higher, consistent with commuters cycling regardless of weather. This 
+motivates including a COVID indicator as a candidate extension in M3.
 
 
 # Baseline model M0
@@ -143,29 +151,36 @@ y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 m_i + \varepsilon_i,
 \quad \varepsilon_i \sim N(0, \sigma^2)
 $$
 
+\clearpage
 
 
 ```{r,echo=FALSE}
 kable(m0_coef_table,
-      caption = "Coefficients table for baseline model M0.", booktabs = TRUE,,
-      linesep = "")
+      caption = "Coefficients table for baseline model M0.", booktabs = TRUE,format ="latex",
+      linesep = "")%>%
+  kable_styling(latex_options = "hold_position")
 ```
 
-
-Table 2 shows the estimated coefficients for M0. All four predictors are highly significant $(p < 0.001)$. Each 1°C increase in mean temperature is associated with approximately 247 additional cyclists per day with the other variables held fixed, while weekend days see around 1,247 fewer cyclists than weekdays, consistent with the commuter-driven pattern observed 
-in the EDA. The negative month coefficient (-247) implies that daily count declines on average as the month increases, though this is a crude approximation since the relationship between month and demand is not linear.
+Table 2 shows the estimated coefficients for M0. All four predictors are highly significant (p < 0.001). Each 1°C increase in 
+temperature is associated with approximately 247 additional cyclists per day, 
+weekend days see around 1,247 fewer cyclists than weekdays, and the negative 
+month coefficient (-247) implies demand declines as month number increases — 
+a crude approximation since the true seasonal pattern is nonlinear.
 
 
 ```{r fig-m0diagnostics,echo=FALSE,fig.cap="Diagnostics for M0",fig.width=7, fig.height=3}
 m0_resid_fitted_plot + m0_qq_plot
 ```
 
-The residuals versus fitted plot shows that the spread of residuals grows 
-noticeably with fitted values, indicating heteroscedasticity — a violation 
-of the constant variance assumption. The QQ plot reveals a heavy right tail, with standardized residuals curving sharply above the reference line at high quantiles, reflecting the right-skewed distribution typical of non-negative count data. Both issues suggest that M0's Gaussian assumption is inadequate. 
+The residuals versus fitted plot shows residual spread growing with fitted values, 
+indicating heteroscedasticity. The QQ plot reveals a heavy right tail with 
+standardized residuals curving sharply above the reference line, suggesting M0's 
+Gaussian assumption is inadequate.
 
-M0 captures the broad direction of key predictors — temperature, weekend effect, and seasonality but treats month as numeric, forcing a linear relationship across months that does not reflect the true seasonal pattern seen in the EDA. It also omits day of week entirely and includes no long-term trend. These limitations motivate M1, which switches month to a factor, adds day of week as a factor, and introduces a linear trend term to capture drift in cycling demand over 2020–2025.
-
+M0 captures the broad direction of key predictors but treats month as numeric, 
+omits day of week entirely, and includes no long-term trend. These limitations 
+motivate M1, which switches month to a factor, adds day of week as a factor, and 
+introduces a linear trend term.
 
 
 <!--
@@ -213,6 +228,26 @@ represent differences relative to these baselines, and the sums begin
 at $m = 2$ and $d = 2$ as the first level of each factor is absorbed 
 into $\beta_0$.
 
+<<<<<<< HEAD
+=======
+First, month is switched from a numeric predictor to a factor, giving each month 
+its own intercept. The boxplot in Figure 2 shows that the relationship between month 
+and demand is not monotonic — counts peak in summer and fall in winter but do not 
+follow a straight line across month numbers 1 to 12, so forcing a single slope as 
+M0 does is inappropriate.
+
+Second, day of week is added as a factor. The boxplot in Figure 3 showed a clear 
+difference between weekdays and weekends, but the weekend binary in M0 groups 
+Saturday and Sunday together. Since Saturday behaves differently from Sunday — 
+likely reflecting a mix of leisure and residual commuting trips — a full factor 
+allows each day to have its own effect.
+
+Third, a linear trend term $t_i$ is added, defined as the integer number of days 
+since 1 January 2020. The time series in Figure 1 suggests that underlying demand 
+has shifted over the 2020--2025 period, and without a trend term the model has no 
+way to capture this drift, potentially biasing all other coefficient estimates.
+
+>>>>>>> b36719a774d55527d9152eab06ba95c7e0ae00bd
 
 **Diagnostics of M1**
 
@@ -220,7 +255,7 @@ into $\beta_0$.
 m1_resid_fitted_plot + m1_qq_plot
 ```
 
-Compared to M0, M1 shows some improvement — the fitted values span a wider range, suggesting the additional predictors (trend, factor month, factor day of week) give the model more flexibility to capture variation in demand. However, the core issues persist. The residuals versus fitted plot still shows increasing spread at higher fitted values, indicating that heteroscedasticity remains unresolved. The QQ plot continues to show a pronounced right tail, with standardized residuals reaching above 6 at the upper end, reflecting the right-skewed nature of the count data that a Gaussian model struggles to accommodate. These issues motivate further extensions in M2 and M3. 
+Compared to M0, M1 shows some improvement — the fitted values span a wider range, suggesting the additional predictors (trend, factor month, factor day of week) give the model more flexibility to capture variation in demand. However, the core issues persist. The residuals versus fitted plot still shows increasing spread at higher fitted values, indicating that heteroscedasticity remains unresolved. The QQ plot continues to show a pronounced right tail, with standardized residuals reaching above 6 at the upper end. These issues motivate further extensions in M2 and M3. 
 
 ## Model M2: Nonlinear temperature
 
@@ -430,16 +465,31 @@ This plot is useful because it highlights regional bias rather than just overall
 Do not introduce new results here.
 -->
 
-Of the four models fitted, M3 comes closest to satisfying the standard linear regression assumptions, though none fully does. M0 through M2 all show indications of heteroscedasticity and a heavy right tail in the QQ plot, which are unsurprising given that daily cyclist counts are non-negative and right-skewed 
-by nature. The log transformation in M3 largely addresses both problems — residuals are much more evenly spread and the QQ plot follows the reference line well across most of its range — but some deviation remains at both tails, so the Gaussian assumption should still be interpreted with some caution even for M3.
+Of the four models fitted, M3 comes closest to satisfying the standard linear 
+regression assumptions, though none fully does. M0 through M2 all show 
+heteroscedasticity and a heavy right tail in the QQ plot. The log transformation 
+in M3 largely addresses both problems, but some deviation remains at both tails, 
+so the Gaussian assumption should still be interpreted with caution even for M3.
 
-The main limitation of the data is that it only includes temperature and calendar variables. Rainfall and wind in particular are likely to affect whether people choose to cycle on a given day, yet neither is available in the dataset. This probably explains why the model struggles most in March and April, and why it consistently under-predicted demand during spring and summer 2022 — periods where something beyond temperature and seasonality was clearly 
-driving behaviour. A separate issue is that the response variable pools counts across all monitoring stations, so the model cannot distinguish between commuter routes and leisure routes, which likely behave quite differently.
+The main limitation of the data is that it only includes temperature and calendar 
+variables. Rainfall and wind are likely to affect cycling decisions on a given day 
+but neither is available in the dataset. A separate issue is that the response 
+variable pools counts across all monitoring stations, so the model cannot 
+distinguish between commuter and leisure routes, which likely behave quite 
+differently.
 
-The long-term trend is also harder to interpret than it first appears. Fitting a single linear trend across 2020--2025 forces the model to average over the COVID dip, the recovery period, and the later years all at once. As the COVID indicator comparison in Section 5.3 shows, this matters — the trend estimate shifts noticeably depending on how the pandemic period is treated, so the negative trend should not be read as straightforward evidence that cycling in Edinburgh is in structural decline.
+The long-term trend is harder to interpret than it first appears. Fitting a single 
+linear trend across 2020–2025 forces the model to average over the COVID dip, 
+recovery, and later years. As shown in Section 5.3, the trend estimate shifts 
+noticeably depending on how the pandemic period is treated, so the negative trend 
+should not be read as evidence of structural decline in Edinburgh cycling.
 
-The most practical improvements would be to add precipitation and wind speed as predictors, and to replace the linear trend with something more flexible such as a piecewise specification that separates the pandemic period from the rest. A Poisson or negative binomial model would also be a more natural fit for count data and would avoid the back-transformation issue that inflates the DS and IS scores for M3. Longer term, disaggregating to individual monitoring 
-stations would allow more targeted conclusions about specific routes and corridors.
+The most practical improvements would be adding precipitation and wind speed as 
+predictors, replacing the linear trend with a piecewise specification separating 
+the pandemic period, and fitting a Poisson or negative binomial model which would 
+be a more natural fit for count data and would avoid the back-transformation issue 
+inflating DS and IS for M3. Longer term, disaggregating to individual monitoring 
+stations would allow more targeted conclusions about specific routes.
 
 Finally, it is worth being cautious about how far these findings extend beyond Edinburgh. The temperature effects, commuter patterns, and trend estimate reflect a specific city during an unusual five-year period. A city with a warmer climate or a different cycling culture might show very different seasonal patterns and temperature sensitivity. Even for Edinburgh, the short observation window means the trend extrapolation to 2035 should be treated as an illustrative scenario rather than a forecast — particularly given how much 
 the pandemic distorts the earlier part of the data.
