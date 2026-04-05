@@ -87,7 +87,7 @@ likely an unusually warm day. The drop at the end coincides with the data ending
 early 2026, making it difficult to distinguish a seasonal effect from a genuine trend 
 change. 
 
-**Boxplots of count by month and by day of week **
+## Boxplots of count by month and by day of week 
 
 ```{r fig-boxplotmonth,echo=FALSE, fig.cap="Distribution of daily cyclist counts by month.",fig.width=6, fig.height=2.25}
 eda_month_boxplot
@@ -102,7 +102,7 @@ eda_dow_boxplot
 
 Figure \@ref(fig:fig-boxplotdow) suggests that cycling demand is higher on weekdays than weekends, with Tuesday to Friday showing the highest medians of around 11,000-12,000 cyclists per day. Sunday and Monday stand out as the lowest, with medians closer to 8,000-9,000, suggesting that commuting is a major driver of cycling demand in Edinburgh. 
 
-**Scatter plot of count vs temp_mean**
+## Scatter plot of count vs temp_mean 
 
 ```{r fig-scattertemp,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature",fig.width=6, fig.height=3}
 eda_temp_scatter
@@ -110,7 +110,7 @@ eda_temp_scatter
 
 Figure \@ref(fig:fig-scattertemp) shows a clear positive but non-linear relationship between mean temperature and daily cyclist counts. Counts rise steeply at lower temperatures before leveling off above around 10–12°C, suggesting a quadratic relationship for temperature term. The spread of counts also increases with temperature, suggesting heteroscedasticity.
 
-**Showing relation between count and mean temperature during COVID and post COVID period**
+## Showing relation between count and mean temperature during COVID and post COVID period
 
 
 ```{r fig-covidscatter,echo=FALSE, fig.cap="Daily cyclist count versus mean temperature by COVID and post-COVID period (2020–2025)",fig.width=6, fig.height=3}
@@ -150,8 +150,6 @@ $$
 y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 m_i + \varepsilon_i, 
 \quad \varepsilon_i \sim N(0, \sigma^2)
 $$
-
-\clearpage
 
 
 ```{r,echo=FALSE}
@@ -222,32 +220,11 @@ groups Saturday and Sunday together, but Figure
 \@ref(fig:fig-boxplotdow) shows these days behave differently, so a 
 full factor allows each day its own effect. Third, a linear trend term 
 $t_i$ is added to capture the drift in underlying demand visible in 
-Figure \@ref(fig:fig-ts). Both factors use dummy variable encoding with 
-January and Sunday as reference categories, so $\gamma_m$ and $\delta_d$ 
-represent differences relative to these baselines, and the sums begin 
-at $m = 2$ and $d = 2$ as the first level of each factor is absorbed 
-into $\beta_0$.
+Figure \@ref(fig:fig-ts). Both factors use dummy encoding with January and Sunday as reference 
+categories, so $\gamma_m$ and $\delta_d$ represent deviations from 
+these baselines.
 
-<<<<<<< HEAD
-=======
-First, month is switched from a numeric predictor to a factor, giving each month 
-its own intercept. The boxplot in Figure 2 shows that the relationship between month 
-and demand is not monotonic — counts peak in summer and fall in winter but do not 
-follow a straight line across month numbers 1 to 12, so forcing a single slope as 
-M0 does is inappropriate.
 
-Second, day of week is added as a factor. The boxplot in Figure 3 showed a clear 
-difference between weekdays and weekends, but the weekend binary in M0 groups 
-Saturday and Sunday together. Since Saturday behaves differently from Sunday — 
-likely reflecting a mix of leisure and residual commuting trips — a full factor 
-allows each day to have its own effect.
-
-Third, a linear trend term $t_i$ is added, defined as the integer number of days 
-since 1 January 2020. The time series in Figure 1 suggests that underlying demand 
-has shifted over the 2020--2025 period, and without a trend term the model has no 
-way to capture this drift, potentially biasing all other coefficient estimates.
-
->>>>>>> b36719a774d55527d9152eab06ba95c7e0ae00bd
 
 **Diagnostics of M1**
 
@@ -322,7 +299,7 @@ kable(cv_table2,
   kable_styling(latex_options = "hold_position")
 ```
 
-Table \@ref(tab:tab-cv2) shows that predictive performance varies across the year. RMSE is lowest in July (3485.3) and highest in April (6485.7) and March (5886.6), suggesting early spring is hardest to predict. December has the worst DS (0.92), indicating poorer uncertainty calibration around that period. Early spring and December therefore present the greatest challenge for the final model.
+Table \@ref(tab:tab-cv2) shows that predictive performance varies across the year. RMSE is lowest in July (3485.3) and highest in April (6485.7) and March (5886.6), suggesting early spring is hardest to predict. December has the worst DS (22.27), indicating poorer uncertainty calibration around that period. Early spring and December therefore present the greatest challenge for the final model.
 
 <!--
 Required content:
@@ -362,12 +339,17 @@ One subsection per planning question (5.1-5.5 from the assignment brief).
 Each must include mandatory fixed-format numbers and real-world interpretation.
 -->
 
-The purpose of this subsection is to assess how reliably the final model predicts cycling demand across the calendar year. Using the monthly cross-validation results from Table 4, we identify which months are predicted best and worst and consider what this implies for transport planning in Edinburgh.
 
-
-As discussed in the Statistical Performance section, Table 4 shows that the predictive performance of the final model varies across the year. Prediction accuracy is strongest in summer, especially in June and July, where both RMSE and DS are lowest. The model performs worst in March and April on RMSE, while December has the highest DS, indicating poorer calibration of the predictive distribution. M3 is the best overall model, yet its performance is not equally reliable across all months.
-
-A plausible transport-planning interpretation is that cycling demand is easier to predict in summer because behaviour is more stable and weather conditions are more consistently favourable. In winter, demand may also be somewhat easier to model for a different reason: for many people, conditions are already too cold or unpleasant for cycling, so small changes in temperature are less likely to affect the decision to bike at all. This reduces behavioural variation and makes demand more predictable. By contrast, early spring is likely to be harder to predict because it is a transition period. As temperatures begin to improve, people may differ much more in the point at which they feel conditions are “good enough” to start cycling again. This creates a mental and behavioural threshold that varies across individuals, making aggregate demand more sensitive to small changes in weather and therefore harder to model accurately. The relatively poor performance in March, April, and December is therefore likely to reflect both model limitations and data limitations: the model omits factors such as rainfall, wind, holidays, and special events, while the available predictors may not fully explain abrupt seasonal changes in cycling behavior.
+Table \@ref(tab:tab-cv2) shows that predictive performance varies 
+noticeably across the year. RMSE is lowest in July (3485.3) and highest 
+in April (6485.7) and March (5886.6), while December has the worst DS 
+(22.27). Summer is easiest to predict as behaviour is stable and 
+conditions consistently favourable. Early spring is hardest — as 
+temperatures begin to improve, individuals differ in when they resume 
+cycling, creating behavioural variation the model cannot capture. The 
+poor performance in March, April, and December likely reflects both 
+model limitations and missing predictors such as rainfall, wind, and 
+public holidays.
 
 ### Long-term trend and extrapolation
 
@@ -441,9 +423,9 @@ This implies April 2022 was a period of unusually high cycling demand that is no
 
 From a transport-planning perspective, this reflect changes in travel behavior, especially if cycling demand temporarily increased because of favorable or unfavorable conditions. There was potentially a post-pandemic behavioural shifts, where increased free movement was taken advantage. On the other hand, there may have been external factors such as fuel prices. The Ukraine-Russia war started in Feb.2022 and had resulted in significant increases in the prices of crude oil. Statistically, the poor fit also reflects model limitations: the final model includes temperature, seasonality, day of week, and trend, but omits potentially important short-term drivers such as rainfall, wind, holidays, oil prices and special events. April 2022 therefore appears to be a period where both the data limitations and the model specification contribute to poor predictive performance.
 
-**5.5 Original Diagnostic Plot**
+### Original Diagnostic Plot
 
-This subsection presents an original plot that is not a standard diagnostic, designed to reveal an interesting feature of the final model that is not visible from standard diagnostics plots. This plot tracks the monthly mean residual over time, showing whether the model systematically over- or under-predicts demand in different periods
+This subsection presents an original plot that is not a standard diagnostic, designed to reveal an interesting feature of the final model that is not visible from standard diagnostics plots. This plot tracks the monthly mean residual over time, showing whether the model systematically over- or under-predicts demand in different periods.
 
 ```{r fig-predictionbias, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Monthly Mean Prediction Bias"}
 original_bias_plot
@@ -465,35 +447,32 @@ This plot is useful because it highlights regional bias rather than just overall
 Do not introduce new results here.
 -->
 
-Of the four models fitted, M3 comes closest to satisfying the standard linear 
-regression assumptions, though none fully does. M0 through M2 all show 
-heteroscedasticity and a heavy right tail in the QQ plot. The log transformation 
-in M3 largely addresses both problems, but some deviation remains at both tails, 
-so the Gaussian assumption should still be interpreted with caution even for M3.
+Of the four models, M3 best satisfies linear regression assumptions 
+though none fully does — M0 through M2 all show indications of 
+heteroscedasticity and a heavy right tail, and while the log 
+transformation in M3 largely addresses both, some tail deviation remains.
 
-The main limitation of the data is that it only includes temperature and calendar 
-variables. Rainfall and wind are likely to affect cycling decisions on a given day 
-but neither is available in the dataset. A separate issue is that the response 
-variable pools counts across all monitoring stations, so the model cannot 
-distinguish between commuter and leisure routes, which likely behave quite 
-differently.
+The dataset's main limitation is that it only covers temperature and 
+calendar variables, omitting rainfall and wind which are known to 
+influence cycling decisions. The response variable also aggregates counts 
+across all stations, preventing the model from distinguishing commuter 
+and leisure routes.
 
-The long-term trend is harder to interpret than it first appears. Fitting a single 
-linear trend across 2020–2025 forces the model to average over the COVID dip, 
-recovery, and later years. As shown in Section 5.3, the trend estimate shifts 
-noticeably depending on how the pandemic period is treated, so the negative trend 
-should not be read as evidence of structural decline in Edinburgh cycling.
+The negative trend should be interpreted cautiously. A single linear 
+trend across 2020--2025 conflates the COVID dip, recovery, and later 
+years, and as shown in Section 5.3, the estimate shifts materially 
+depending on how the pandemic is treated.
 
-The most practical improvements would be adding precipitation and wind speed as 
-predictors, replacing the linear trend with a piecewise specification separating 
-the pandemic period, and fitting a Poisson or negative binomial model which would 
-be a more natural fit for count data and would avoid the back-transformation issue 
-inflating DS and IS for M3. Longer term, disaggregating to individual monitoring 
-stations would allow more targeted conclusions about specific routes.
+The most practical improvements would be adding precipitation and wind 
+speed, replacing the linear trend with a piecewise specification, and 
+using a Poisson or negative binomial model to avoid the back-transformation 
+issue affecting M3's DS and IS scores. Disaggregating to individual 
+stations would also allow more targeted route-level conclusions.
 
-Finally, it is worth being cautious about how far these findings extend beyond Edinburgh. The temperature effects, commuter patterns, and trend estimate reflect a specific city during an unusual five-year period. A city with a warmer climate or a different cycling culture might show very different seasonal patterns and temperature sensitivity. Even for Edinburgh, the short observation window means the trend extrapolation to 2035 should be treated as an illustrative scenario rather than a forecast — particularly given how much 
-the pandemic distorts the earlier part of the data.
-
+These findings should not be generalised beyond Edinburgh without caution 
+— the temperature effects, commuter patterns, and trend reflect a specific 
+city over an unusual period. The 2035 extrapolation in particular should 
+be treated as an illustrative scenario rather than a forecast.
 # Appendix: Code
 
 

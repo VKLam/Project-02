@@ -313,6 +313,11 @@ summary_stats <- data.frame(
 
 print(summary_stats)
 
+#Covid Indicator
+cycle_daily_df <- cycle_daily_df %>%
+  mutate(
+    is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
+  )
 
 
 #EDA Plots
