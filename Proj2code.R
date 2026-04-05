@@ -24,8 +24,7 @@ cycle_daily_df <- cycle_daily_df %>%
     dow = factor(dow, levels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"),
                  ordered = TRUE),
     trend = as.integer(date - as.Date("2020-01-01")),
-    #is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
-    
+
   )
 
 cycle_cv_df <- cycle_daily_df %>%
@@ -39,7 +38,7 @@ model_formulas <- list(
   M2 = count ~ weekend + trend + factor(month) + factor(dow) +
     temp_mean + I(temp_mean^2),
   M3 = log(count + 1) ~ weekend + trend + factor(month) + factor(dow) +
-    temp_mean + I(temp_mean^2) #+ is_covid
+    temp_mean + I(temp_mean^2)
 )
 
 m0 <- lm(model_formulas[["M0"]], data = cycle_daily_df)
@@ -96,7 +95,7 @@ cv_results <- bind_rows(lapply(names(model_formulas), function(model_name) {
       # Back-transform to count scale
       mu_count    <- exp(mu_log) - 1
       sigma_count <- exp(mu_log) * sigma_log  # delta method
-      #sigma_count <- sqrt((exp(sigma_log^2) - 1) * exp(2 * mu_log + sigma_log^2))
+ 
       
       y <- test_df$count
       
@@ -314,11 +313,6 @@ summary_stats <- data.frame(
 
 print(summary_stats)
 
-#Covid Indicator
-cycle_daily_df <- cycle_daily_df %>%
-  mutate(
-    is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
-  )
 
 
 #EDA Plots
@@ -698,7 +692,6 @@ future_dates <- data.frame(
     weekend = 0,
     temp_mean = mean(cycle_daily_df$temp_mean, na.rm = TRUE),
     trend = as.integer(date - as.Date("2020-01-01")),
-    #is_covid = ifelse(year %in% 2020:2021, "COVID Period", "Post-COVID")
   )
 
 future_dates$pred_log <- predict(m3, newdata = future_dates)
