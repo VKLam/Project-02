@@ -410,7 +410,7 @@ kable(growth_rate_table,
 ```
 Both Table \@ref(tab:tab-trendcoefs) and \@ref(tab:tab-trendsig) show that all three models estimate a negative trend in daily cycling demand over the observed period. The trend in M1 corresponds to approximately 692 fewer cyclists per year, in M2 to 683 fewer cyclists per year, and in M3 to about 786 fewer cyclists per year. Expressed relative to the predicted count on 1 January 2020, this corresponds to annual percentage changes of -5.66% in M1, -5.48% in M2, and -6.82% in M3. The trend is statistically significant in all three models, with large negative t-values and p-values effectively equal to zero.
 
-The estimated trend is relatively consistent across M1, M2, and M3, where all three models imply an approximate decline of 680–790 cyclists per year as seen in table \@ref(tab:tab-growthrate). This suggests that the broad direction and magnitude of the trend are reasonably robust to modelling choices. This consistency is useful for planning because it indicates that the conclusion of declining demand is not being driven by one particular specification alone. At the same time, the slightly more negative estimate in M3 shows that allowing for skewness and non-constant variance can shift the implied rate of change somewhat, even if the overall conclusion remains the same.
+The estimated trend is relatively consistent across M1, M2, and M3, where all three models imply an approximate decline of 680–790 cyclists per year as seen in Table \@ref(tab:tab-growthrate). This suggests that the broad direction and magnitude of the trend are reasonably robust to modelling choices. This consistency is useful for planning because it indicates that the conclusion of declining demand is not being driven by one particular specification alone. At the same time, the slightly more negative estimate in M3 shows that allowing for skewness and non-constant variance can shift the implied rate of change somewhat, even if the overall conclusion remains the same.
 
 ```{r tab-trendcomp, echo=FALSE}
 kable(trend_comparison,
@@ -443,7 +443,7 @@ resid_time_plot
 
 Figure \@ref(fig:fig-restime) identifies periods where the final model appears to fit particularly poorly. This can be caused either by residuals that are unusually large in magnitude or because they are persistently positive or negative over a sustained interval.
 
-```{r, echo=FALSE}
+```{r tab-poorperiod, echo=FALSE}
 kable(head(poor_period_table, 10),
       caption = "Months with the largest RMSE under the final model.", booktabs = TRUE,
       linesep = "")
@@ -452,7 +452,7 @@ kable(head(poor_period_table, 10),
 
 Table 8 shows the months in which the final model performs worst, ranked by period-specific RMSE. This table will therefore help indicate the exact month with worst performance.
 
-April 2022 stands out as the single poorest-fitted month. It has the largest month-specific RMSE in the table, equal to 11317.8, and a positive mean residual of 8934.4. This indicates that the model under-predicts cyclist demand consistently during this period of time rather than making a few isolated large errors.
+From Table \@ref(tab:tab-poorperiod), we find that April 2022 stands out as the single poorest-fitted month. It has the largest month-specific RMSE in the table, equal to 11317.8, and a positive mean residual of 8934.4. This indicates that the model under-predicts cyclist demand consistently during this period of time rather than making a few isolated large errors.
 
 This implies April 2022 was a period of unusually high cycling demand that is not fully explained by the variables included in the model. The residual plot shows a large grouping of positive residuals during spring and summer 2022. This suggests that the model may be missing some factor that lifted counts above their usual seasonal level. 
 
@@ -463,11 +463,11 @@ From a transport-planning perspective, this reflect changes in travel behavior, 
 
 This subsection presents an original plot that is not a standard diagnostic, designed to reveal an interesting feature of the final model that is not visible from standard diagnostics plots. This plot tracks the monthly mean residual over time, showing whether the model systematically over- or under-predicts demand in different periods
 
-```{r predictionbias, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Monthly Mean Prediction Bias"}
+```{r fig-predictionbias, echo=FALSE,fig.width=7, fig.height=2.5, fig.cap="Monthly Mean Prediction Bias"}
 original_bias_plot
 ```
 
-The plot shows the monthly mean residual of the final model over time. Positive values  indicate systematic under-prediction and negative values indicate systematic over-prediction. Multiple periods are visibly  out, particularly parts of 2022 and late 2024, where the model persistently under-predicts cycling demand, while much of 2025 shows negative mean residuals, indicating over-prediction. A transport planner should conclude that the model captures overall demand patterns reasonably well, but it struggles to track shifts in underlying behaviour across time. In particular, some periods appear to involve sustained changes in demand that are not fully explained by temperature, seasonality, day of week, and trend alone.
+The plot in Figure \@ref(fig:fig-predictionbias) shows the monthly mean residual of the final model over time. Positive values  indicate systematic under-prediction and negative values indicate systematic over-prediction. Multiple periods are visibly  out, particularly parts of 2022 and late 2024, where the model persistently under-predicts cycling demand, while much of 2025 shows negative mean residuals, indicating over-prediction. A transport planner should conclude that the model captures overall demand patterns reasonably well, but it struggles to track shifts in underlying behaviour across time. In particular, some periods appear to involve sustained changes in demand that are not fully explained by temperature, seasonality, day of week, and trend alone.
 
 This plot is useful because it highlights regional bias rather than just overall error magnitude. Unlike RMSE or QQ plots, it shows when the model is persistently wrong in one direction, which is especially important for planning. A model that repeatedly under-predicts demand during certain periods may lead planners to underestimate pressure on cycling infrastructure, while persistent over-prediction could lead to over-allocation of resources.
 
